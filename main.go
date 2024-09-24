@@ -1,12 +1,10 @@
-#!/usr/bin/env go run
+
 package main
 
 import (
     "bufio"
     "fmt"
-    "io"
     "log"
-    "net/http"
     "os"
     "os/exec"
     "path/filepath"
@@ -108,7 +106,7 @@ func updateFromRepository(repoURL string) error {
     // Mendapatkan path direktori saat ini 
     currentDir, err := os.Getwd()
     if err != nil {
-        return fmt.Errorf("gagal mendapatkan direktori saat ini: %w", err)
+        return fmt.Errorf("Fail to get directory: %w", err)
     }
 
     // Menjalankan perintah "go get -u" untuk mengupdate dari repository
@@ -117,18 +115,18 @@ func updateFromRepository(repoURL string) error {
 
     output, err := cmd.CombinedOutput()
     if err != nil {
-        return fmt.Errorf("gagal mengupdate dari repository: %w\nOutput: %s", err, output)
+        return fmt.Errorf("Failed to update from repository: %w\nOutput: %s", err, output)
     }
 
-    fmt.Println("Update berhasil!")
+    fmt.Println("Update Success!")
     return nil
 }
 
 func printHelp() {
-    fmt.Println("Penggunaan: worldfind [opsi] <direktori> [wordlist]")
-    fmt.Println("Opsi:")
-    fmt.Println("  --update     Mengupdate worldfind ke versi terbaru dari repository")
-    fmt.Println("  -h, --help    Menampilkan pesan bantuan ini")
+    fmt.Println("Usage: worldfind [option] <directory> [wordlist]")
+    fmt.Println("Option:")
+    fmt.Println("  --update     Update latest version from repository.")
+    fmt.Println("  -h, --help    Display this help. ")
 }
 
 
@@ -145,9 +143,9 @@ func main() {
             repoURL := "github.com/Arya-f4/worldshellfinder" // Ganti dengan URL repository Anda!
             err := updateFromRepository(repoURL)
             if err != nil {
-                log.Fatalf("Error saat mengupdate: %v\n", err)
+                log.Fatalf("Error While Updating: %v\n", err)
             }
-            fmt.Println("Update selesai.")
+            fmt.Println("Update done.")
             return
         case "-h", "--help":
             printHelp()
@@ -177,23 +175,23 @@ func main() {
     // Memuat keyword
     keywords, err := loadKeywords(wordlistPath)
     if err != nil {
-        log.Fatalf("Gagal memuat keyword: %v\n", err)
+        log.Fatalf("Fail to load Keyword: %v\n", err)
     }
 
     // Regex untuk mendeteksi potensi webshell
-    regexPatterns := []string{
-        `(?i)\b(eval|assert|preg_replace|create_function)\s*\(.*?\$.*?\)`,
-        `(?i)\b(system|exec|shell_exec|passthru|popen|proc_open)\s*\(.*?\)`,
-        `(?i)\b(base64_decode|str_rot13|gzinflate)\s*\(.*?\)`,
-        `(?i)\b(curl|fsockopen|pfsockopen|stream_socket_client)\s*\(.*?\)`,
-        `(?i)file_(?:get|put)_contents\s*\(.*?\)`,
-        `(?i)\$_(GET|POST|REQUEST|COOKIE|SERVER)\[.*?\]`,
-    }
+	regexPatterns := []string{
+		`(?i)\b(eval|assert|preg_replace|create_function)\s*\(\s*(base64_decode|str_rot13|gzinflate|gzuncompress|shell_exec|exec|system|passthru)\s*\(.*?\)\s*\)`, // decode + eksekusi
+		`(?i)\b(system|exec|shell_exec|passthru|popen|proc_open)\s*\(\s*$_(?:GET|POST|REQUEST|COOKIE|SERVER)\[([^\]]+)\]\s*\)`, // command injection langsung
+		`(?i)function\s+([a-z0-9_]+)\s*\(\s*\)\s*\{\s*if\s*\(\s*isset\s*\(\s*\$_(GET|POST|REQUEST)\['?(.*?)'?]\s*\)\s*\)\s*\{\s*(eval|assert|preg_replace|create_function)\s*\((.*?)\);`, // backdoor dengan fungsi dan isset
+		`(?i)(?s)move_uploaded_file\s*\(.*?,\s*['"]\.\./(.*?)\.php['"]\s*\)`, // upload file dengan perpindahan direktori 
+		`(?i)\b(file_put_contents|fwrite|fputs)\s*\(\s*['"](.*?\.\.\/.*?\.php)['"],\s*(.*?)\)`, // tulis file ke path yang mencurigakan
+	}
+	
     var regexes []*regexp.Regexp
     for _, pattern := range regexPatterns {
         rx, err := regexp.Compile(pattern)
         if err != nil {
-            log.Fatalf("Pola regex tidak valid: %s\n", err)
+            log.Fatalf("Regex Pattern Not Valid: %s\n", err)
         }
         regexes = append(regexes, rx)
     }

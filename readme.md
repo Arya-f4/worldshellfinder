@@ -25,6 +25,11 @@ Worldfind is a basic command-line tool written in Go that helps you identify pot
 
 ### Usage:
 
+0. **Building and compiling to executable**
+   ```bash
+   go build -o worldfind
+   ```
+   you can replace the worldfind with your desired name of application and also change the bash command.
 1. **Basic Scan:**
    ```bash
    ./worldfind <directory> 

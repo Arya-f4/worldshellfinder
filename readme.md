@@ -54,3 +54,8 @@ This command will scan the `/var/www/html` directory using keywords from the `wo
 Contributions are welcome! Please feel free to submit pull requests for new features, improvements, or bug fixes.
 
 **Please note:** This tool is under development and may be updated in the future.
+
+## Compatibility :
+- Windows
+- Linux
+- Mac (Not Tested Yet)

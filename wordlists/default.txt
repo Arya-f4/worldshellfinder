@@ -1,22 +1,27 @@
-shell_exec
-exec
-system
-passthru
-popen
-proc_open
-pcntl_exec
-apache_setenv
-setenv
-putenv
-ini_alter
-symlink
-proc_nice
-openssl_open
-posix_kill 
-posix_setpgid
-posix_setsid
-posix_setuid 
-create_function
-assert_options 
-proc_terminate
-proc_get_status
+gacor
+maxwin
+zeus
+gzinflate(base64_decode(
+<!--#exec cmd=
+eval(base64_decode(
+eval(htmlspecialchars_decode(urldecode(base64_decode(
+eval(str_rot13(gzinflate(str_rot13(base64_decode
+eval(strrev(htmlspecialchars_decode(gzinflate(base64_decode(
+;@eval(
+<?php error_reporting(0);ini_set("display_errors", 0);
+function perms($f) {
+$p = fileperms($f);
+if (($p & 0xC000) == 0xC000) {
+<?php else :if (isset($_GET[\
+eval(eval(eval(eval(eval(eval(eval(eval(eval(eval(eval(eval(eval(eval(eval(eval(eval(eval(eval(eval(eval(eval(
+eval(eval(eval(eval(eval
+eval(eval(eval
+@curl_setopt($ch, CURLOPT_FILE, $fp);
+eval("\x3f\76"
+rmdir("$frpath");
+explode(',', FM_UPLOAD_EXTENSION);
+if($_POST){if(@copy($_FILES['__']['tmp_name'], $_FILES['__']['name'])
+htmlentities($words[$word], ENT_COMPAT, $word_charset);
+CURLOPT_RETURNTRANSFER,true);curl_setopt(
+function decrypt($str,$pwd){$pwd=base64_encode($pwd);$str=base64_decode($str)
+eval(htmlspecialchars_decode(base64_decode(urldecode(base64_decode(

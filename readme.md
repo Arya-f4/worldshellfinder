@@ -33,7 +33,7 @@ Worldfind is a basic command-line tool written in Go that helps you identify pot
 
 2. **Custom Wordlist:**
    ```bash
-   ./worldfind <directory> <wordlist_path>
+   ./worldfind <directory> <wordlist_path (optional)>
    ```
    - Replace `<wordlist_path>` with the path to your custom wordlist file.
 

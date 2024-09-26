@@ -1,0 +1,48 @@
+
+## list of shell this tool Already detect :
+[x] 0byt3m1n1.php | **0byt3m1n1**
+[x] 22xc.php | **22XploiterCrew**
+[x] 22xcmini.php | **22Xploiter Crew mini**
+[x] adminer.php | **Adminer**
+[x] alfa.php |  **Alfa Shell**
+[x] anon.php | **Anonymous Shell**
+[x] b374k.php | **b374k** 
+[x] b374kpriv.php | **b374k priv8** 
+[x] beyaz.php | **Beyaz Hacker**
+[x] bypass403.php | **Bypass 403** 
+[x] cpanel.php | **Crack cPanel**
+[x] cylul | **Cylul007**
+[x] cyto.php | **CytoXteam**
+[x] dbconfig.php | **DB Config**
+[x] eagle.php | **Black Eagle Team**
+[x] eviltwin.php | **Evil Twin**
+[x] fierza.php | **FierzaXploit**
+[x] filemanager.php | **File Manager Shell**
+[x] foxwso.php | **Fox WSO**
+[x] gelay.php | **Gel4y Mini Shell**
+[x] indosec.php | **IndoSec**
+[x] indoxploit.php | **IndoXploit**
+[x] ipt.php | **IPT Mini Shell**
+[x] kerang.php | **Kerang Shell**
+[x] mass.php | **Mass Deface**
+[x] marijuana.php | **Marijuana**
+[x] predator.php | **Predator**
+[x] priv8.php | **Priv8 Shell**
+[x] ransomware.php | **Ransomware**
+[x] sa.php | **SA Shell**
+[x] saskra.php | **SasKraXPloit**
+[x] simattacker.php | **Sim Attacker** 
+[x] symlink2019.php | **symlink2019**
+[x] takterlihat.php | **Tak Terlihat Shell**
+[x] tiny.php | **Tiny File Manager**
+[x] uploader.php | **File Uploader**
+[x] webadmin.php | **Webadmin**
+[x] wordpress.php | **WpMassDeface**
+[x] wso.php | **WSO Shell**
+[x] wsopriv.php |  **WSO Priv8**
+[x] whm.php| **WHMcs Killer**
+[x] whmhelper.php | **WHM Crack Helper**
+[x]
+[x]
+[x]
+[x]

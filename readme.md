@@ -60,6 +60,12 @@ The wordlist should be a plain text file with one keyword per line. You can use 
 
 This command will scan the `/var/www/html` directory using keywords from the `wordlists/my_wordlist.txt` file.
 
+### To Know :
+This tools is using keyword that unique inside the shell to get as reference
+here is the list of the known shell :
+
+[List Of Known Shell and Already Detected](list_find_already_shell.md)
+
 ### Contributing:
 
 Contributions are welcome! Please feel free to submit pull requests for new features, improvements, or bug fixes.

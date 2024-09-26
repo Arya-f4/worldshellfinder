@@ -28,11 +28,6 @@ Worldfind is a basic command-line tool written in Go that helps you identify pot
    - Run the command: `go build`
    - This will create an executable file named `worldfind` in the same directory.
 
-### Alternative Installation
-- You can download and install via this command below :
-  ```bash
-  go install github.com/Arya-f4/worldshellfinder@latest
-  ```
 
 ### Usage:
 

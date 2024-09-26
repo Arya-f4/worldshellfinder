@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"embed"
 	"fmt"
 	"log"
 	"os"
@@ -11,6 +12,11 @@ import (
 	"strings"
 	"time"
 )
+
+// Embed the default wordlist file
+//
+//go:embed wordlists/default.txt
+var defaultWordlist embed.FS
 
 const banner = `
  _    _            _     _ _____ _          _ _  ______ _           _           
@@ -42,11 +48,30 @@ func loadingAnimation(done chan bool) {
 func loadKeywords(wordlistPath string) ([]string, error) {
 	var keywords []string
 
-	// Use default wordlist if no path is provided
 	if wordlistPath == "" {
-		wordlistPath = "wordlists/default.txt"
+		// Load default embedded wordlist if no path is provided
+		file, err := defaultWordlist.Open("wordlists/default.txt")
+		if err != nil {
+			return nil, err
+		}
+		defer file.Close()
+
+		scanner := bufio.NewScanner(file)
+		for scanner.Scan() {
+			keyword := strings.TrimSpace(scanner.Text())
+			if keyword != "" {
+				keywords = append(keywords, keyword)
+			}
+		}
+
+		if err := scanner.Err(); err != nil {
+			return nil, err
+		}
+
+		return keywords, nil
 	}
 
+	// Load from external wordlist if a path is provided
 	file, err := os.Open(wordlistPath)
 	if err != nil {
 		return nil, err

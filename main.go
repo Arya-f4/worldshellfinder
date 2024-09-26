@@ -25,7 +25,6 @@ const banner = `
 | |/\| |/ _ \| '__| |/ _` + "`" + ` |` + "`" + `--. \ '_ \ / _ \ | | |  _| | | '_ \ / _` + "`" + ` |/ _ \ '__|
 \  /\  / (_) | |  | | (_| /\__/ / | | |  __/ | | | |   | | | | | (_| |  __/ |   
  \/  \/ \___/|_|  |_|\__,_\____/|_| |_|\___|_|_| \_|   |_|_| |_|\__,_|\___|_|   
-                                                                                
 `
 
 // Loading animation while scanning
@@ -92,12 +91,13 @@ func loadKeywords(wordlistPath string) ([]string, error) {
 
 	return keywords, nil
 }
+
 func scanFiles(directory string, keywords []string, regexes []*regexp.Regexp) {
 	err := filepath.Walk(directory, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			// Skip any directories or files that cause an error (e.g., symbolic links)
 			log.Printf("Error accessing file or directory: %v\n", err)
-			return nil // Returning nil here so it continues scanning the next file
+			return nil // Continue scanning the next file
 		}
 
 		if !info.IsDir() {
@@ -126,7 +126,7 @@ func containsKeywords(filename string, keywords []string, regexes []*regexp.Rege
 
 	scanner := bufio.NewScanner(file)
 	buf := make([]byte, 1024*1024)    // 1MB buffer
-	scanner.Buffer(buf, 10*1024*1024) // Set max token size to 10MB
+	scanner.Buffer(buf, 20*1024*1024) // Set max token size to 20MB
 
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -149,19 +149,19 @@ func containsKeywords(filename string, keywords []string, regexes []*regexp.Rege
 }
 
 func updateFromRepository(repoURL string) error {
-	// Mendapatkan path direktori saat ini
+	// Get current working directory
 	currentDir, err := os.Getwd()
 	if err != nil {
-		return fmt.Errorf("Fail to get directory: %w", err)
+		return fmt.Errorf("fail to get directory: %w", err)
 	}
 
-	// Menjalankan perintah "go get -u" untuk mengupdate dari repository
+	// Run "go get -u" to update from repository
 	cmd := exec.Command("go", "get", "-u", repoURL)
-	cmd.Dir = currentDir // Menjalankan perintah di direktori saat ini
+	cmd.Dir = currentDir // Run command in the current directory
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("Failed to update from repository: %w\nOutput: %s", err, output)
+		return fmt.Errorf("failed to update from repository: %w\noutput: %s", err, output)
 	}
 
 	fmt.Println("Update Success!")
@@ -172,7 +172,7 @@ func printHelp() {
 	fmt.Println("Usage: worldfind [option] <directory> [wordlist]")
 	fmt.Println("Option:")
 	fmt.Println("  --update     Update latest version from repository.")
-	fmt.Println("  -h, --help    Display this help. ")
+	fmt.Println("  -h, --help   Display this help.")
 }
 
 func main() {
@@ -196,7 +196,7 @@ func main() {
 			printHelp()
 			return
 		default:
-			// If it's not an option, proceed with directory scanning
+			// Proceed with directory scanning
 		}
 	}
 
@@ -245,7 +245,7 @@ func main() {
 	done := make(chan bool)
 	go loadingAnimation(done)
 
-	fmt.Println(banner)
+	fmt.Print(banner)
 	scanFiles(directory, keywords, regexes)
 
 	// Stop the loading animation

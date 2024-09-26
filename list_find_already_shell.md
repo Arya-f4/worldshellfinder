@@ -42,7 +42,8 @@
 - [x] wsopriv.php |  **WSO Priv8**
 - [x] whm.php| **WHMcs Killer**
 - [x] whmhelper.php | **WHM Crack Helper**
-[x]
-[x]
-[x]
-[x]
+- [ ] To be filled later
+- [ ] To be filled later
+- [ ] To be filled later
+- [ ] To be filled later
+- [ ] To be filled later

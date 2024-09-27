@@ -48,3 +48,5 @@
 - [x] wordpress.php | **WpMassDeface**
 - [x] wso.php | **WSO Shell**
 - [x] wsopriv.php |  **WSO Priv8**
+
+This is include all type extension or even steganograph version of those shell above.

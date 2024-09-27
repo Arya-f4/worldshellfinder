@@ -2,7 +2,8 @@
 
 Worldfind is a basic command-line tool written in Go that helps you identify potential webshells hidden within your web server directories. It works by scanning files for suspicious keywords and regular expressions commonly found in malicious scripts.
 
-![image](https://github.com/user-attachments/assets/8d0c7844-a32a-4137-9889-b86e2a80a0d5)
+![shellfind](https://github.com/user-attachments/assets/3fa2513f-5eef-433c-ac7f-92d3e5789397)
+
 
 
 ![Worldshellfinder flow](https://github.com/user-attachments/assets/430df5ec-d1b3-46f8-9fdd-27be51c30d88)

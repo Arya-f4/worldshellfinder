@@ -4,6 +4,9 @@
 - [x] 22xc.php | **22XploiterCrew**
 - [x] 22xcmini.php | **22Xploiter Crew mini**
 - [x] 403webshell.php | **403 WebShell** 
+- [x] 404 Not Found.php | **404 Not Found Shell**
+- [x] 404.php | **404 Shell**
+- [x] Ani-Shell.php | 
 - [x] adminer.php | **Adminer**
 - [x] ak47shell.php | **Ak47Shell.php**
 - [x] alfa.php |  **Alfa Shell**
@@ -49,7 +52,14 @@
 - [x] wordpress.php | **WpMassDeface**
 - [x] wso.php | **WSO Shell**
 - [x] wsopriv.php |  **WSO Priv8**
-- [ ] To be Filled
+- [x] 菊花聊天室.php | **菊花聊天室 Shell Silic Hacker Group Army**
+- [x] 极其隐蔽的pHp小马穿插在正常页面中.php | **极其隐蔽的pHp小马穿插在正常页面中 Shell**
+- [x] 在线exp专用免杀版.php | **在线exp专用免杀版 Shell**
+- [x] 中国木马资源网-WwW.MumaSec.TK.php | **中国木马资源网-WwW.MumaSec.TK MumaSec Shell**
+- [x] 中国木马资源网- WwW.7jyewu.Cn | **中国木马资源网- WwW.7jyewu.Cn 7jyewu Shell**
+- [x] tryag.php | **Tryag.php - Edited By KingDefacer**
+- [x] sosyete.php | **Sosyete Safe Mode Bypass Shell - Edited By KingDefacer**
+- [x] simattacker.php | **SimAttacker - Version : 1.0.0 - Edited By KingDefacer**
 - [ ] To be Filled
 
 ============================================

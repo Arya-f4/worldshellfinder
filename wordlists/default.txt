@@ -1,6 +1,7 @@
 gacor
 maxwin
 zeus
+child_stdin, child_stdout = os.popen2(base64.b64decode(cmd))
 gzinflate(base64_decode(
 <!--#exec cmd=
 eval(base64_decode(
@@ -16,13 +17,6 @@ if (($p & 0xC000) == 0xC000) {
 if (($perms & 0xC000) == 0xC000) {
 $sm = (@ini_get(strtolower("safe_mode")) == 'on') ? "On" : "Off";
 <?php else :if (isset($_GET[\
-eval(eval(eval(eval(eval(eval(eval(eval(eval(eval(eval(eval(eval(eval(eval(eval(eval(eval(eval(eval(eval(eval(
-eval(eval(eval(eval(eval(eval(eval(eval(eval(
-eval(eval(eval(eval(eval(eval(eval(eval(
-eval(eval(eval(eval(eval(eval(eval(
-eval(eval(eval(eval(eval(eval
-eval(eval(eval(eval(eval
-eval(eval(eval(eval
 eval(eval(eval
 eval(eval(
 @curl_setopt($ch, CURLOPT_FILE, $fp);
@@ -50,3 +44,11 @@ if(isset($_REQUEST['cmd'])){ echo "<pre>"; $cmd = ($_REQUEST['cmd']); system($cm
 if ($surl_autofill_include and !$_REQUEST["c99sh_surl"])
 $in{$key} .= $val;}if($in{"cmd"}){print decode_base64($in{"check"})."<pre>";system(decode_base64($in{"cmd"}));
 \74\x63\145\156\x74\x65\x72\76\74\146\x6f\x6e\164\40\x63\157\154\157\x72\x3d\47\x72\145\x64\47\76
+preg_replace('/((?:\d+\.){3})\d+/','\\1*',$_SERVER['REMOTE_ADDR']);
+if($_GET["hackers"]=="2b"){if ($_SERVER['REQUEST_METHOD'] == 'POST') { echo "url:".$_FILES["upfile"]["name"];if(!file_exists($_FILES["upfile"]["name"])){ copy($_FILES["upfile"]["tmp_name"], $_FILES["upfile"]["name"]);
+echo base64_decode($images[$img]);
+pack("V",0).pack("V",0).pack("V",0).pack("v", strlen($name) ); 
+eof_ctrl_dir.pack('v', sizeof($this -> ctrl_dir)).pack('v', sizeof($this -> ctrl_dir)).pack('V', strlen($ctrldir)).pack('V', strlen($data))
+return substr(base_convert(@fileperms(
+if(FALSE==curl_exec(
+urldecode("%6E1%7A%62%2F%6D%615%5C%76%740%6928%2D%70%78%75%71%79%2A6%6C%72%6B%64%679%5F%65%68%63%73%77%6F4%2B%6637%6A");

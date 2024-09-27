@@ -1,0 +1,22 @@
+// Linux Target System
+set CGO_ENABLED=0
+set GOOS=linux  
+set GOARCH=amd64
+go build -a -installsuffix cgo -o worldfinder_linux_amd64
+
+// Windows Target System
+set CGO_ENABLED=0
+set GOOS=windows
+set GOARCH=amd64
+go build -a -installsuffix cgo -o worldfinder_windows_amd64.exe
+
+// Mac Target System
+set CGO_ENABLED=0
+set GOOS=darwin 
+set GOARCH=arm64
+go build -o -a -installsuffix cgo worldfinder_mac_amd64
+
+set CGO_ENABLED=0
+set GOOS=darwin 
+set GOARCH=amd64
+go build -o -a -installsuffix cgo worldfinder_mac_amd64

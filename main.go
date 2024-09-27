@@ -28,6 +28,7 @@ const (
 //
 //go:embed wordlists/default.txt
 var defaultWordlist embed.FS
+var shellCount int
 
 const banner = `
 ` + Red + `
@@ -40,7 +41,7 @@ const banner = `
 \  /\  / (_) | |  | | (_| /\__/ / | | |  __/ | | | |   | | | | | (_| |  __/ |   
  \/  \/ \___/|_|  |_|\__,_\____/|_| |_|\___|_|_| \_|   |_|_| |_|\__,_|\___|_|  
  ` + Reset + `	
- made with love by ` + Yellow + ` Worldsavior/Arya-f4 ` + Magenta + `^^	 ` + Green + `	v.1.0.3.1 Stable Build  ` + Reset + `
+ made with love by ` + Yellow + ` Worldsavior/Arya-f4 ` + Magenta + `^^	 ` + Green + `	v.1.0.4.0 Stable Build  ` + Reset + `
 ===========================================================================================
 `
 
@@ -125,6 +126,7 @@ func scanFiles(directory string, keywords []string, regexes []*regexp.Regexp) {
 			}
 			if match {
 				fmt.Println("\n Potential webshell found in:", path)
+				shellCount++
 			}
 		}
 		return nil
@@ -264,7 +266,7 @@ func main() {
 
 	fmt.Print(banner)
 	scanFiles(directory, keywords, regexes)
-
+	fmt.Printf("Total web shells found: %d\n", shellCount)
 	// Stop the loading animation
 	done <- true
 }

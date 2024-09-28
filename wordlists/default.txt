@@ -52,3 +52,15 @@ eof_ctrl_dir.pack('v', sizeof($this -> ctrl_dir)).pack('v', sizeof($this -> ctrl
 return substr(base_convert(@fileperms(
 if(FALSE==curl_exec(
 urldecode("%6E1%7A%62%2F%6D%615%5C%76%740%6928%2D%70%78%75%71%79%2A6%6C%72%6B%64%679%5F%65%68%63%73%77%6F4%2B%6637%6A");
+implode(DIRECTORY_SEPARATOR, $absolutes).DIRECTORY_SEPARATOR;
+trim(exec($_REQUEST[
+passthru(getenv("HTTP_ACCEPT_LANGUAGE"));
+elseif(ereg("listdir (.*)",
+if (strpos($_SESSION['currentdir'],str_replace('\\','/',$_SERVER['DOCUMENT_ROOT'])) === false)
+@set_time_limit(0);@preg_replace("/[email]/e",$_POST['Id'],"error");
+<%=Request.Servervariables("
+<pre>#{ view.getClass().getClassLoader().loadClass("java.util.Scanner").getMethod("next").invoke(
+while(! feof (
+document.forms[0].command.focus();
+@extract($_POST, EXTR_SKIP);
+

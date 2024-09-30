@@ -60,6 +60,7 @@
 - [x] tryag.php | **Tryag.php - Edited By KingDefacer**
 - [x] sosyete.php | **Sosyete Safe Mode Bypass Shell - Edited By KingDefacer**
 - [x] simattacker.php | **SimAttacker - Version : 1.0.0 - Edited By KingDefacer**
+- [x]  
 - [ ] To be Filled
 
 ============================================

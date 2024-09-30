@@ -1,6 +1,5 @@
 gacor
 maxwin
-zeus
 child_stdin, child_stdout = os.popen2(base64.b64decode(cmd))
 gzinflate(base64_decode(
 <!--#exec cmd=
@@ -63,4 +62,22 @@ if (strpos($_SESSION['currentdir'],str_replace('\\','/',$_SERVER['DOCUMENT_ROOT'
 while(! feof (
 document.forms[0].command.focus();
 @extract($_POST, EXTR_SKIP);
-
+system(base64_decode(
+exec(base64_decode(
+echo base64_decode
+@eval($_POST['
+$_GET['cmd']
+if($_POST['cmd'])
+$_REQUEST['cmd']
+@fopen($_FILES['
+if(isset($_REQUEST['cmd']))
+shell_exec(base64_decode(
+file_get_contents('php://input')
+@system(base64_decode(
+@eval(gzinflate(base64_decode(
+htmlentities(highlight_file($this->file));
+echo "{${passthru(
+chunk_split(base64_encode(
+shell_exec($
+ActiveXObject("WScript.Shell").Run(
+if (os.platform() == 'win32') {

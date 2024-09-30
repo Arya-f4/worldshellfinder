@@ -3,12 +3,17 @@ package main
 import (
 	"bufio"
 	"embed"
+	"flag"
 	"fmt"
+
+	"io"
 	"log"
+	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"strings"
 	"time"
 )
@@ -29,6 +34,7 @@ const (
 //go:embed wordlists/default.txt
 var defaultWordlist embed.FS
 var shellCount int
+var verbose bool // Global flag for verbose mode
 
 const banner = `
 ` + Red + `
@@ -41,7 +47,7 @@ const banner = `
 \  /\  / (_) | |  | | (_| /\__/ / | | |  __/ | | | |   | | | | | (_| |  __/ |   
  \/  \/ \___/|_|  |_|\__,_\____/|_| |_|\___|_|_| \_|   |_|_| |_|\__,_|\___|_|  
  ` + Reset + `	
- made with love by ` + Yellow + ` Worldsavior/Arya-f4 ` + Magenta + `^^	 ` + Green + `	v.1.0.4.1 Stable Build  ` + Reset + `
+ made with love by ` + Yellow + ` Worldsavior/Arya-f4 ` + Magenta + `^^	 ` + Green + `	v.1.0.5.2 Stable Build  ` + Reset + `
 ===========================================================================================
 `
 
@@ -61,35 +67,11 @@ func loadingAnimation(done chan bool) {
 		}
 	}
 }
-
 func loadKeywords(wordlistPath string) ([]string, error) {
 	var keywords []string
 
-	if wordlistPath == "" {
-		// Load default embedded wordlist if no path is provided
-		file, err := defaultWordlist.Open("wordlists/default.txt")
-		if err != nil {
-			return nil, err
-		}
-		defer file.Close()
-
-		scanner := bufio.NewScanner(file)
-		for scanner.Scan() {
-			keyword := strings.TrimSpace(scanner.Text())
-			if keyword != "" {
-				keywords = append(keywords, keyword)
-			}
-		}
-
-		if err := scanner.Err(); err != nil {
-			return nil, err
-		}
-
-		return keywords, nil
-	}
-
-	// Load from external wordlist if a path is provided
-	file, err := os.Open(wordlistPath)
+	// Load default embedded wordlist first
+	file, err := defaultWordlist.Open("wordlists/default.txt")
 	if err != nil {
 		return nil, err
 	}
@@ -107,6 +89,27 @@ func loadKeywords(wordlistPath string) ([]string, error) {
 		return nil, err
 	}
 
+	// If an external wordlist is provided, append its keywords to the default list
+	if wordlistPath != "" {
+		file, err := os.Open(wordlistPath)
+		if err != nil {
+			return nil, err
+		}
+		defer file.Close()
+
+		scanner := bufio.NewScanner(file)
+		for scanner.Scan() {
+			keyword := strings.TrimSpace(scanner.Text())
+			if keyword != "" {
+				keywords = append(keywords, keyword)
+			}
+		}
+
+		if err := scanner.Err(); err != nil {
+			return nil, err
+		}
+	}
+
 	return keywords, nil
 }
 
@@ -119,13 +122,16 @@ func scanFiles(directory string, keywords []string, regexes []*regexp.Regexp) {
 		}
 
 		if !info.IsDir() {
-			match, err := containsKeywords(path, keywords, regexes)
+			match, keyword, err := containsKeywords(path, keywords, regexes)
 			if err != nil {
 				log.Printf("Error reading file: %v\n", err)
 				return nil // Continue scanning even if one file fails
 			}
 			if match {
-				fmt.Println("\n Potential webshell found in:", path)
+				fmt.Printf("\nPotential webshell found in: %s\n", path)
+				if verbose && keyword != "" {
+					fmt.Printf("Keyword detected: %s\n", keyword)
+				}
 				shellCount++
 			}
 		}
@@ -136,10 +142,10 @@ func scanFiles(directory string, keywords []string, regexes []*regexp.Regexp) {
 	}
 }
 
-func containsKeywords(filename string, keywords []string, regexes []*regexp.Regexp) (bool, error) {
+func containsKeywords(filename string, keywords []string, regexes []*regexp.Regexp) (bool, string, error) {
 	file, err := os.Open(filename)
 	if err != nil {
-		return false, err
+		return false, "", err
 	}
 	defer file.Close()
 
@@ -151,59 +157,112 @@ func containsKeywords(filename string, keywords []string, regexes []*regexp.Rege
 		line := scanner.Text()
 		for _, keyword := range keywords {
 			if strings.Contains(line, keyword) {
-				return true, nil
+				return true, keyword, nil
 			}
 		}
 		for _, rx := range regexes {
 			if rx.MatchString(line) {
-				return true, nil
+				return true, "regex_match", nil
 			}
 		}
 	}
 
 	if err := scanner.Err(); err != nil {
-		return false, err
+		return false, "", err
 	}
-	return false, nil
+	return false, "", nil
 }
 
 func updateFromRepository(repoURL string) error {
-	// Get current working directory
-	currentDir, err := os.Getwd()
+	// Detect OS and architecture
+	osType := runtime.GOOS
+	archType := runtime.GOARCH
+
+	// Construct the download URL based on the OS and architecture
+	downloadURL := fmt.Sprintf("%s/releases/latest/download/%s_%s", repoURL, osType, archType)
+	fmt.Printf("Downloading update from: %s\n", downloadURL)
+
+	// Create a temp file to download the new binary
+	tmpFile, err := os.CreateTemp("", "worldshellfinder_*")
 	if err != nil {
-		return fmt.Errorf("fail to get directory: %w", err)
+		return fmt.Errorf("failed to create temp file: %w", err)
+	}
+	defer tmpFile.Close()
+
+	// Download the new binary
+	resp, err := http.Get(downloadURL)
+	if err != nil {
+		return fmt.Errorf("failed to download update: %w", err)
+	}
+	defer resp.Body.Close()
+
+	// Check for successful response
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("failed to download update: HTTP %d", resp.StatusCode)
 	}
 
-	// Run "go get -u" to update from repository
-	cmd := exec.Command("go", "get", "-u", repoURL)
-	cmd.Dir = currentDir // Run command in the current directory
-
-	output, err := cmd.CombinedOutput()
+	// Write the downloaded binary to the temp file
+	_, err = io.Copy(tmpFile, resp.Body)
 	if err != nil {
-		return fmt.Errorf("failed to update from repository: %w\noutput: %s", err, output)
+		return fmt.Errorf("failed to write update to file: %w", err)
 	}
 
-	fmt.Println("Update Success!")
+	// Get the path of the current running binary
+	executablePath, err := os.Executable()
+	if err != nil {
+		return fmt.Errorf("failed to get current executable path: %w", err)
+	}
+
+	// Replace the current binary with the new one
+	err = os.Rename(tmpFile.Name(), executablePath)
+	if err != nil {
+		return fmt.Errorf("failed to replace current binary: %w", err)
+	}
+
+	// Make the new binary executable
+	err = os.Chmod(executablePath, 0755)
+	if err != nil {
+		return fmt.Errorf("failed to make new binary executable: %w", err)
+	}
+
+	fmt.Println("Update complete! Restarting the application...")
+
+	// Restart the application
+	cmd := exec.Command(executablePath)
+	cmd.Start() // Start the new process
+	os.Exit(0)  // Exit the current process
+
 	return nil
 }
-
 func printHelp() {
-	fmt.Println(banner)
+	
+
 	fmt.Println("Usage: worldfind [option] <directory> [wordlist]")
 	fmt.Println("Option:")
 	fmt.Println("  --update     Update latest version from repository.")
+	fmt.Println("  -v           Enable verbose mode.")
 	fmt.Println("  -h, --help   Display this help.")
 }
 
 func main() {
-	if len(os.Args) < 2 {
+	// Define flags
+	fmt.Print(banner)
+	flagVerbose := flag.Bool("v", false, "enable verbose mode")
+	flag.Parse()
+
+	// Set verbose flag
+	verbose = *flagVerbose
+
+	// Get non-flag arguments
+	args := flag.Args()
+	if len(args) < 1 {
 		printHelp()
 		return
 	}
 
 	// Handle options
-	for i := 1; i < len(os.Args); i++ {
-		switch os.Args[i] {
+	for _, arg := range args {
+		switch arg {
 		case "--update":
 			repoURL := "github.com/Arya-f4/worldshellfinder" // Change with your repository URL!
 			err := updateFromRepository(repoURL)
@@ -224,11 +283,11 @@ func main() {
 	var directory string
 	var wordlistPath string
 
-	if len(os.Args) > 1 {
-		directory = os.Args[1]
+	if len(args) > 0 {
+		directory = args[0]
 	}
-	if len(os.Args) > 2 {
-		wordlistPath = os.Args[2]
+	if len(args) > 1 {
+		wordlistPath = args[1]
 	}
 
 	// If directory is not provided, show help
@@ -247,27 +306,29 @@ func main() {
 	regexPatterns := []string{
 		`(?i)(eval|assert|system|shell_exec|passthru)\s*\(\s*["']?[a-zA-Z0-9+/=]{20,}["']?\s*\)`,                     // Obfuscated eval with base64-like strings
 		`(?i)(exec|system|popen|proc_open)\s*\(\s*\$_(?:GET|POST|REQUEST|COOKIE|SERVER)\[([^\]]+)\]\s*\)`,            // Remote command execution via superglobals
-		`(?i)move_uploaded_file\s*\(.*?,\s*['"]\.\./(.*?)\.php['"]\s*\)`,                                             // File upload with .php
-		`(?i)(file_put_contents|fwrite|fputs)\s*\(\s*['"](.*?\.php)['"],\s*(base64_decode|gzinflate|gzuncompress)\(`, // Write obfuscated PHP shell
-		`(?i)(?s)\$_(?:GET|POST|REQUEST|COOKIE)\[.*?\]\s*\((eval|system|exec|shell_exec|passthru)\)`,                 // Superglobal with execution function
+		`(?i)move_uploaded_file\s*\(.*?,\s*['"]\.\./(.*?)\.php['"]\s*\)`,                                             // File upload and renaming to PHP
+		`(?i)\$_(?:GET|POST|REQUEST|COOKIE|SERVER)\[[^\]]+\]\s*=.*?\$_(?:GET|POST|REQUEST|COOKIE|SERVER)\[[^\]]+\]`, // Variable variable assignments
 	}
 
+	// Compile regexes
 	var regexes []*regexp.Regexp
 	for _, pattern := range regexPatterns {
 		rx, err := regexp.Compile(pattern)
 		if err != nil {
-			log.Fatalf("Invalid regex pattern: %s\n", err)
+			log.Fatalf("Failed to compile regex: %v\n", err)
 		}
 		regexes = append(regexes, rx)
 	}
 
-	// Start loading animation
+	// Start scanning with loading animation
 	done := make(chan bool)
 	go loadingAnimation(done)
 
-	fmt.Print(banner)
 	scanFiles(directory, keywords, regexes)
-	fmt.Printf("Total web shells found: %d\n", shellCount)
-	// Stop the loading animation
+
+	// Stop loading animation after scanning
 	done <- true
+
+	// Print summary
+	fmt.Printf("Number of potential webshells found: %d\n", shellCount)
 }

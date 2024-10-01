@@ -39,6 +39,12 @@ Option:
 
 ### Alternative Installation & update : 
 
+Setting go path environment (linux & MAC) :
+```bash
+export PATH=$PATH:/home/worldsavior/go/bin
+```
+
+And then install via go install (linux, windows & MAC) : 
 ```bash
 go install -v github.com/Arya-f4/worldshellfinder@latest
 ```

@@ -47,8 +47,9 @@ Option:
 
 Setting go path environment (linux & MAC) :
 ```bash
-export PATH=$PATH:/home/worldsavior/go/bin
+export PATH=$PATH:/home/profile/go/bin
 ```
+replace the profile with your current profile
 
 And then install via go install (linux, windows & MAC) : 
 ```bash

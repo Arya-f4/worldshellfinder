@@ -3,9 +3,15 @@ Tired getting hacked and finding where the hacker backdoor is?
 Worldfind is a basic command-line tool written in Go that helps you identify potential webshells hidden within your web server directories. It works by scanning files for suspicious keywords and regular expressions commonly found in malicious scripts.
 
 ![shellfind](https://github.com/user-attachments/assets/3fa2513f-5eef-433c-ac7f-92d3e5789397)
-
-
-
+<p align="center">
+<img src="https://img.shields.io/github/go-mod/go-version/Arya-f4/worldshellfinder">
+  <a href="https://github.com/Arya-f4/worldshellfinder/releases"><img src="https://img.shields.io/github/downloads/Arya-f4/worldshellfinder/total">
+<a href="https://github.com/Arya-f4/worldshellfinder/releases/"><img src="https://img.shields.io/github/release/Arya-f4/worldshellfinder">
+<a href="https://github.com/Arya-f4/worldshellfinder/issues"><img src="https://img.shields.io/github/issues-raw/Arya-f4/worldshellfinder">
+<a href="https://github.com/Arya-f4/worldshellfinder/discussions"><img src="https://img.shields.io/github/discussions/Arya-f4/worldshellfinder">
+<img src="https://img.shields.io/github/repo-size/Arya-f4/worldshellfinder">
+</p>
+  
 ![Worldshellfinder flow](https://github.com/user-attachments/assets/430df5ec-d1b3-46f8-9fdd-27be51c30d88)
 
 **Disclaimer:** This tool is intended for educational and informational purposes only. It is not a substitute for comprehensive security measures. Use at your own risk. False positives are possible.
@@ -39,6 +45,13 @@ Option:
 
 ### Alternative Installation & update : 
 
+Setting go path environment (linux & MAC) :
+```bash
+export PATH=$PATH:/home/profile/go/bin
+```
+replace the profile with your current profile
+
+And then install via go install (linux, windows & MAC) : 
 ```bash
 go install -v github.com/Arya-f4/worldshellfinder@latest
 ```
@@ -62,6 +75,12 @@ go install -v github.com/Arya-f4/worldshellfinder@latest
    ./worldfind <directory> <wordlist_path (optional)>
    ```
    - Replace `<wordlist_path>` with the path to your custom wordlist file.
+  
+### Alternative Usage:
+1. **After installation using go install simply just type :**
+   ```bash
+   worldshellfinder [option] <directory> [wordlist]
+   ```
 
 **Wordlist Format:**
 

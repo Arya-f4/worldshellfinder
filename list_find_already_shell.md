@@ -1,5 +1,5 @@
 ## list of shell this tool Already detect :
-
+Here is a list of shells I have documented; some may have been picked up by the scanner, but are not listed here.
 - [x] 0byt3m1n1.php | **0byt3m1n1 Shell**
 - [x] 0byteV2.php | **0byteV2 Shell**
 - [x] 0x.php | **0x Shell**
@@ -35,7 +35,6 @@
 - [x] b374k.php | **b374k**
 - [x] B374k Beta ShElL V1 | **B374k Beta ShelL V1 Cyb3R_ShubhaM**
 - [x] b374kpriv.php | **b374k priv8**
-- [ ]
 - [x] beyaz.php | **Beyaz Hacker**
 - [x] bypass403.php | **Bypass 403**
 - [x] c99shell.php | **c99Shell By PinoyWhiz**
@@ -82,8 +81,6 @@
 - [x] 中国木马资源网-WwW.MumaSec.TK.php | **中国木马资源网-WwW.MumaSec.TK MumaSec Shell**
 - [x] 中国木马资源网- WwW.7jyewu.Cn | **中国木马资源网- WwW.7jyewu.Cn 7jyewu Shell**
 - [x] tryag.php | **Tryag.php - Edited By KingDefacer**
-- [x] A
-
 - [ ] To be Filled
 
 ============================================

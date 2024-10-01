@@ -1,4 +1,4 @@
-module github.com/Arya-f4/worldshellfinder/v3
+module github.com/Arya-f4/worldshellfinder
 
 go 1.23
 

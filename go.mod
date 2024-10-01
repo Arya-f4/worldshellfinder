@@ -1,9 +1,7 @@
-module github.com/Arya-f4/worldshellfinder
+module github.com/Arya-f4/worldshellfinder/v3
 
 go 1.23
 
 require (
-	github.com/Arya-f4/worldshellfinder v0.0.0-00010101000000-000000000000
+	github.com/Arya-f4/worldshellfinder/v3 v1.1.1.3
 )
-
-replace github.com/Arya-f4/worldshellfinder => github.com/Arya-f4/worldshellfinder v0.0.0-00010101000000-000000000000

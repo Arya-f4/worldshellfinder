@@ -16,6 +16,14 @@ Worldfind is a basic command-line tool written in Go that helps you identify pot
 - Uses regular expressions to detect common webshell patterns.
 - Customizable wordlist (optional).
 - Simple and easy to use.
+```bash
+Usage: worldfind [option] <directory> [wordlist]
+Option:
+  --update     Update latest version from repository.
+  -v           Enable verbose mode.
+  -h, --help   Display this help.
+```
+
 
 ### Installation:
 
@@ -28,6 +36,12 @@ Worldfind is a basic command-line tool written in Go that helps you identify pot
    - Open a terminal and navigate to the worldfind directory.
    - Run the command: `go build`
    - This will create an executable file named `worldfind` in the same directory.
+
+### Alternative Installation & update : 
+
+```bash
+go install github.com/Arya-f4/worldshellfinder@latest
+```
 
 
 ### Usage:

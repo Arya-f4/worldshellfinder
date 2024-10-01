@@ -74,6 +74,12 @@ go install -v github.com/Arya-f4/worldshellfinder@latest
    ./worldfind <directory> <wordlist_path (optional)>
    ```
    - Replace `<wordlist_path>` with the path to your custom wordlist file.
+  
+### Alternative Usage:
+1. **After installation using go install simply just type :**
+   ```bash
+   worldshellfinder [option] <directory> [wordlist]
+   ```
 
 **Wordlist Format:**
 

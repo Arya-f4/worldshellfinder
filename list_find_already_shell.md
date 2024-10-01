@@ -22,8 +22,20 @@
 - [x] alfa.php | **Alfa Shell**
 - [x] alfa403.php | **Alfa Team Shell**
 - [x] anon.php | **Anonymous Shell**
+- [x] angel.php | **Neon Genesis Angel Shell**
+- [x] Antichat Shell v.1.3.php | **Antichat Webshell**
+- [x] Antichat Socks5 Server v 1.0.php | **Antichat Socks5 Webserver shell**
+- [x] Antichat Shell | **Antichat Shell**
+- [x] Aria cPanel cracker version 1.0 - Edited By KingDefacer.php | **Aria cPanel cracker version 1.0 - Edited By KingDefacer Shell**
+- [x] ASPYDrvsInfo.php | **ASP.net Shell Drive Info**
+- [x] ava Server Faces MiniWebCmdShell 0.2 by HeartLESS.php | **Server Faces Mini Web Shell By HeartLess**
+- [x] AventGrup-Sincap 1.0.php | **AventGrup Sincap 1.0 Session(Oturum)**
+- [x] Ayyildiz Tim - AYT- Shell v 2.1 Biz.php |**Ayyildiz Tim Shell v 2.1 Biz**
+- [x] azrail 1.0 by C-W-M.php | **azrail 1.0 by C-W-M Shell**
 - [x] b374k.php | **b374k**
+- [x] B374k Beta ShElL V1 | **B374k Beta ShelL V1 Cyb3R_ShubhaM**
 - [x] b374kpriv.php | **b374k priv8**
+- [ ]
 - [x] beyaz.php | **Beyaz Hacker**
 - [x] bypass403.php | **Bypass 403**
 - [x] c99shell.php | **c99Shell By PinoyWhiz**

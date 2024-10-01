@@ -72,7 +72,6 @@ $_REQUEST['cmd']
 @fopen($_FILES['
 if(isset($_REQUEST['cmd']))
 shell_exec(base64_decode(
-file_get_contents('php://input')
 @system(base64_decode(
 @eval(gzinflate(base64_decode(
 htmlentities(highlight_file($this->file));
@@ -83,7 +82,6 @@ gzuncompress(base64_decode($
 ActiveXObject("WScript.Shell").Run(
 if (os.platform() == 'win32') {
 @shell_exec($)
-(strtoupper(substr(PHP_OS,
 chunk_split(base64_encode($
 <?php echo(str_replace('<','',$_POST['cmd']));?
 trim(trim(trim($

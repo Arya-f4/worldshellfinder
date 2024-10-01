@@ -303,15 +303,11 @@ func main() {
 
 	// Refined regex patterns for more specific webshell detection
 	regexPatterns := []string{
-		`(?i)(eval|assert|system|shell_exec|passthru)\s*\(\s*["']?[a-zA-Z0-9+/=]{20,}["']?\s*\)`,                    // Obfuscated eval with base64-like strings
-		`(?i)(exec|system|popen|proc_open)\s*\(\s*\$_(?:GET|POST|REQUEST|COOKIE|SERVER)\[([^\]]+)\]\s*\)`,           // Remote command execution via superglobals
-		`(?i)move_uploaded_file\s*\(.*?,\s*['"]\.\./(.*?)\.php['"]\s*\)`,                                            // File upload and renaming to PHP
-		`(?i)(passthru|shell_exec|system|exec)\s*\(\s*\$_(?:GET|POST|REQUEST|COOKIE|SERVER)\[.*?\]\s*\)`,            // Command execution via superglobals
-		`(?i)\$_(?:GET|POST|REQUEST|COOKIE|SERVER)\s*\[\s*["']REMOTE_ADDR["']\s*\]`,                                 // Accessing superglobal arrays with user input
-		`(?i)\$_FILES\s*\[\s*["'][^"']+["']\s*\]\s*\[\s*["']tmp_name["']\s*\]`,                                      // File upload with temp file
-		`(?i)\$_FILES\s*\[\s*["'][^"']+["']\s*\]\s*\[\s*["']name["']\s*\]\s*\.\s*["']\.php["']`,                     // File upload with PHP extension
-		`eval\(\s*\$\w+\s*\(\s*\$\w+\s*\(\s*\$\w+\s*\(\s*\$\w+\s*\(\s*\$\w+\s*\)\s*\)\s*\)\s*\)\s*\)\s*;`,           // Nested eval
-		`(?i)\$_(?:GET|POST|REQUEST|COOKIE|SERVER)\[[^\]]+\]\s*=.*?\$_(?:GET|POST|REQUEST|COOKIE|SERVER)\[[^\]]+\]`, // Variable variable assignments
+		`(?i)(eval|assert|system|shell_exec|passthru)\s*\(\s*["']?[a-zA-Z0-9+/=]{20,}["']?\s*\)`,          // Obfuscated eval with base64-like strings
+		`(?i)(exec|system|popen|proc_open)\s*\(\s*\$_(?:GET|POST|REQUEST|COOKIE|SERVER)\[([^\]]+)\]\s*\)`, // Remote command execution via superglobals
+		`(?i)move_uploaded_file\s*\(.*?,\s*['"]\.\./(.*?)\.php['"]\s*\)`,                                  // File upload and renaming to PHP
+		`(?i)(passthru|shell_exec|system|exec)\s*\(\s*\$_(?:GET|POST|REQUEST|COOKIE|SERVER)\[.*?\]\s*\)`,  // Command execution via superglobals
+		`eval\(\s*\$\w+\s*\(\s*\$\w+\s*\(\s*\$\w+\s*\(\s*\$\w+\s*\(\s*\$\w+\s*\)\s*\)\s*\)\s*\)\s*\)\s*;`, // Nested eval
 	}
 
 	// Compile regexes

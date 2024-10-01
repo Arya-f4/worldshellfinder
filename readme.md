@@ -40,7 +40,7 @@ Option:
 ### Alternative Installation & update : 
 
 ```bash
-go install github.com/Arya-f4/worldshellfinder@latest
+go install -v github.com/Arya-f4/worldshellfinder@latest
 ```
 
 

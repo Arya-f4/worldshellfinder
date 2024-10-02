@@ -23,7 +23,7 @@ Worldfind is a basic command-line tool written in Go that helps you identify pot
 - Customizable wordlist (optional).
 - Simple and easy to use.
 ```bash
-Usage: worldfind [option] <directory> [wordlist]
+Usage: worldshellfinder [option] <directory> [wordlist]
 Option:
   --update     Update latest version from repository.
   -v           Enable verbose mode.
@@ -61,18 +61,18 @@ go install -v github.com/Arya-f4/worldshellfinder@latest
 
 0. **Building and compiling to executable**
    ```bash
-   go build -o worldfind
+   go build -o worldshellfinder
    ```
    you can replace the worldfind with your desired name of application and also change the bash command.
 1. **Basic Scan:**
    ```bash
-   ./worldfind <directory> 
+   ./worldshellfinder <directory> 
    ```
    - Replace `<directory>` with the path to the directory you want to scan.
 
 2. **Custom Wordlist:**
    ```bash
-   ./worldfind <directory> <wordlist_path (optional)>
+   ./worldshellfinder <directory> <wordlist_path (optional)>
    ```
    - Replace `<wordlist_path>` with the path to your custom wordlist file.
   
@@ -89,7 +89,7 @@ The wordlist should be a plain text file with one keyword per line. You can use 
 **Example:**
 
 ```bash
-./worldfind /var/www/html wordlists/my_wordlist.txt
+./worldshellfinder /var/www/html wordlists/my_wordlist.txt
 ```
 
 This command will scan the `/var/www/html` directory using keywords from the `wordlists/my_wordlist.txt` file.

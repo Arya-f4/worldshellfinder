@@ -1,3 +1,6 @@
+<meta name="description" content="World Shell Finder is a web shell finder / detection tool that scans files for malicious content and enhances website security.">
+<meta name="keywords" content="webshell finder, web security, world shell finder, webshell detection tool, website security">
+
 ## Worldfind: A Simple Webshell Detection Tool
 Tired getting hacked and finding where the hacker backdoor is?
 Worldfind is a basic web shell finder command-line tool written in Go that helps you identify potential web shell hidden within your web server directories or even in your image file. It works by scanning files for suspicious keywords and regular expressions commonly found in malicious scripts.

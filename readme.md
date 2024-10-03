@@ -5,7 +5,6 @@ Worldfind is a basic web shell finder command-line tool written in Go that helps
 ![shellfind](https://github.com/user-attachments/assets/3fa2513f-5eef-433c-ac7f-92d3e5789397)
 <p align="center">
 <img src="https://img.shields.io/github/go-mod/go-version/Arya-f4/worldshellfinder">
-  <a href="https://github.com/Arya-f4/worldshellfinder/releases"><img src="https://img.shields.io/github/downloads/Arya-f4/worldshellfinder/total">
 <a href="https://github.com/Arya-f4/worldshellfinder/releases/"><img src="https://img.shields.io/github/release/Arya-f4/worldshellfinder">
 <a href="https://github.com/Arya-f4/worldshellfinder/issues"><img src="https://img.shields.io/github/issues-raw/Arya-f4/worldshellfinder">
 <a href="https://github.com/Arya-f4/worldshellfinder/discussions"><img src="https://img.shields.io/github/discussions/Arya-f4/worldshellfinder">

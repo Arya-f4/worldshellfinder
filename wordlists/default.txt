@@ -77,7 +77,6 @@ shell_exec(base64_decode(
 htmlentities(highlight_file($this->file));
 echo "{${passthru(
 chunk_split(base64_encode(
-shell_exec($
 gzuncompress(base64_decode($
 ActiveXObject("WScript.Shell").Run(
 if (os.platform() == 'win32') {
@@ -97,3 +96,4 @@ base64_decode('c3RyX3JvdDEz');
 eval(gzuncompress(base64_decode(str_rot13
 base_convert(bin2hex($
 base_convert(bin2hex(substr($
+\74\151\156\x70\165\164\40\164\x79\160\145\75\x22\x68\151\x64\144\145\156\42\40\x6e\x61\155\145\x3d\x22\154\x6f\x6b\x6e\171\141\x22\40\166\141\x6c\x75\145\x3d\42

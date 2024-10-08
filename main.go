@@ -47,7 +47,7 @@ const banner = `
 \  /\  / (_) | |  | | (_| /\__/ / | | |  __/ | | | |   | | | | | (_| |  __/ |   
  \/  \/ \___/|_|  |_|\__,_\____/|_| |_|\___|_|_| \_|   |_|_| |_|\__,_|\___|_|  
  ` + Reset + `	
- made with love by ` + Yellow + ` Worldsavior/Arya-f4 ` + Magenta + `^^	 ` + Green + `	v.1.1.1.3 Stable Build  ` + Reset + `
+ made with love by ` + Yellow + ` Worldsavior/Arya-f4 ` + Magenta + `^^	 ` + Green + `	v.1.1.1.5 Stable Build  ` + Reset + `
 ===========================================================================================
 `
 
@@ -305,9 +305,12 @@ func main() {
 	regexPatterns := []string{
 		`(?i)(eval|assert|system|shell_exec|passthru)\s*\(\s*["']?[a-zA-Z0-9+/=]{20,}["']?\s*\)`,          // Obfuscated eval with base64-like strings
 		`(?i)(exec|system|popen|proc_open)\s*\(\s*\$_(?:GET|POST|REQUEST|COOKIE|SERVER)\[([^\]]+)\]\s*\)`, // Remote command execution via superglobals
-		`(?i)move_uploaded_file\s*\(.*?,\s*['"]\.\./(.*?)\.php['"]\s*\)`,                                  // File upload and renaming to PHP
+		`(?i)move_uploaded_file\s*\(.*?,\s*['"]\.\./(.*?)\.php['"]\s*\)`,
+		// File upload and renaming to PHP
 		`(?i)(passthru|shell_exec|system|exec)\s*\(\s*\$_(?:GET|POST|REQUEST|COOKIE|SERVER)\[.*?\]\s*\)`,  // Command execution via superglobals
 		`eval\(\s*\$\w+\s*\(\s*\$\w+\s*\(\s*\$\w+\s*\(\s*\$\w+\s*\(\s*\$\w+\s*\)\s*\)\s*\)\s*\)\s*\)\s*;`, // Nested eval
+		`(?i)is_dir\s*\(\s*\$\w+\s*\)\s*\?\s*rmdir\s*\(\s*\$\w+\s*\)\s*:\s*unlink\s*\(\s*\$\w+\s*\)\s*;`,  // is_dir and delete logic
+
 	}
 
 	// Compile regexes

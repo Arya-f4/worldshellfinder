@@ -303,13 +303,14 @@ func main() {
 
 	// Refined regex patterns for more specific webshell detection
 	regexPatterns := []string{
-		`(?i)(eval|assert|system|shell_exec|passthru)\s*\(\s*["']?[a-zA-Z0-9+/=]{20,}["']?\s*\)`,          // Obfuscated eval with base64-like strings
-		`(?i)(exec|system|popen|proc_open)\s*\(\s*\$_(?:GET|POST|REQUEST|COOKIE|SERVER)\[([^\]]+)\]\s*\)`, // Remote command execution via superglobals
-		`(?i)move_uploaded_file\s*\(.*?,\s*['"]\.\./(.*?)\.php['"]\s*\)`,
-		// File upload and renaming to PHP
-		`(?i)(passthru|shell_exec|system|exec)\s*\(\s*\$_(?:GET|POST|REQUEST|COOKIE|SERVER)\[.*?\]\s*\)`,  // Command execution via superglobals
-		`eval\(\s*\$\w+\s*\(\s*\$\w+\s*\(\s*\$\w+\s*\(\s*\$\w+\s*\(\s*\$\w+\s*\)\s*\)\s*\)\s*\)\s*\)\s*;`, // Nested eval
-		`(?i)is_dir\s*\(\s*\$\w+\s*\)\s*\?\s*rmdir\s*\(\s*\$\w+\s*\)\s*:\s*unlink\s*\(\s*\$\w+\s*\)\s*;`,  // is_dir and delete logic
+		`(?i)(eval|assert|system|shell_exec|passthru)\s*\(\s*["']?[a-zA-Z0-9+/=]{20,}["']?\s*\)`,                                    // Obfuscated eval with base64-like strings
+		`(?i)(exec|system|popen|proc_open)\s*\(\s*\$_(?:GET|POST|REQUEST|COOKIE|SERVER)\[([^\]]+)\]\s*\)`,                           // Remote command execution via superglobals
+		`(?i)move_uploaded_file\s*\(.*?,\s*['"]\.\./(.*?)\.php['"]\s*\)`,                                                            // File upload and renaming to PHP
+		`(?i)(passthru|shell_exec|system|exec)\s*\(\s*\$_(?:GET|POST|REQUEST|COOKIE|SERVER)\[.*?\]\s*\)`,                            // Command execution via superglobals
+		`eval\(\s*\$\w+\s*\(\s*\$\w+\s*\(\s*\$\w+\s*\(\s*\$\w+\s*\(\s*\$\w+\s*\)\s*\)\s*\)\s*\)\s*\)\s*;`,                           // Nested eval
+		`(?i)is_dir\s*\(\s*\$\w+\s*\)\s*\?\s*rmdir\s*\(\s*\$\w+\s*\)\s*:\s*unlink\s*\(\s*\$\w+\s*\)\s*;`,                            // is_dir and delete logic
+		`(?i)if\s*\(\s*is_dir\s*\(\s*\$\w+\s*\)\s*&&\s*is_readable\s*\(\s*\$\w+\s*\)\s*&&\s*!\s*is_link\s*\(\s*\$\w+\s*\)\s*\)\s*{`, // Directory and readability check
+		`(?i)__halt_compiler\s*\(\s*\)\s*`, // __halt_compiler usage, which can be used to hide webshell code (it represent the end of the file where it's continued by raw data that is not interpreted by PHP)
 
 	}
 

@@ -47,7 +47,7 @@ const banner = `
 \  /\  / (_) | |  | | (_| /\__/ / | | |  __/ | | | |   | | | | | (_| |  __/ |   
  \/  \/ \___/|_|  |_|\__,_\____/|_| |_|\___|_|_| \_|   |_|_| |_|\__,_|\___|_|  
  ` + Reset + `	
- made with love by ` + Yellow + ` Worldsavior/Arya-f4 ` + Magenta + `^^	 ` + Green + `	v.1.1.1.5 Stable Build  ` + Reset + `
+ made with love by ` + Yellow + ` Worldsavior/Arya-f4 ` + Magenta + `^^	 ` + Green + `	v.1.1.1.6 Stable Build  ` + Reset + `
 ===========================================================================================
 `
 
@@ -311,7 +311,7 @@ func main() {
 		`(?i)is_dir\s*\(\s*\$\w+\s*\)\s*\?\s*rmdir\s*\(\s*\$\w+\s*\)\s*:\s*unlink\s*\(\s*\$\w+\s*\)\s*;`,                            // is_dir and delete logic
 		`(?i)if\s*\(\s*is_dir\s*\(\s*\$\w+\s*\)\s*&&\s*is_readable\s*\(\s*\$\w+\s*\)\s*&&\s*!\s*is_link\s*\(\s*\$\w+\s*\)\s*\)\s*{`, // Directory and readability check
 		`(?i)__halt_compiler\s*\(\s*\)\s*`, // __halt_compiler usage, which can be used to hide webshell code (it represent the end of the file where it's continued by raw data that is not interpreted by PHP)
-
+		`(?:isset\s*\(\s*\$_SERVER\s*\[\s*['"]H(?:['"]\s*\.\s*['"])?T(?:['"]\s*\.\s*['"])?T(?:['"]\s*\.\s*['"])?P(?:['"]\s*\.\s*['"])?S['"]\]\s*\)|\$_SERVER\s*\[\s*['"]H(?:['"]\s*\.\s*['"])?T(?:['"]\s*\.\s*['"])?T(?:['"]\s*\.\s*['"])?P(?:['"]\s*\.\s*['"])?S['"]\]\s*===\s*(?:['"]o(?:['"]\s*\.\s*['"])?n['"]|['"]on['"]))\s*(?:\?\s*['"]ht(?:['"]\s*\.\s*['"])?tp(?:['"]\s*\.\s*['"])?s['"]\s*:\s*['"]ht(?:['"]\s*\.\s*['"])?tp['"]|\)\s*\.\s*['"]://['"]\s*\.\s*\$_SERVER\s*\[\s*['"]HT(?:['"]\s*\.\s*['"])?T(?:['"]\s*\.\s*['"])?P(?:['"]\s*\.\s*['"])?_H(?:['"]\s*\.\s*['"])?OS(?:['"]\s*\.\s*['"])?T['"])`,
 	}
 
 	// Compile regexes

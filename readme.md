@@ -111,6 +111,6 @@ Contributions are welcome! Please feel free to submit pull requests for new feat
 ## Compatibility :
 - Windows
 - Linux
-- Mac (Not Tested Yet)
+- Mac (Compile it Yourself)
 
 [![Go](https://github.com/Arya-f4/worldshellfinder/actions/workflows/go.yml/badge.svg)](https://github.com/Arya-f4/worldshellfinder/actions/workflows/go.yml)

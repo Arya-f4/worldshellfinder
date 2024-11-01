@@ -168,14 +168,13 @@ func removeStringFromDirectory(directory string, stringToRemove string) error {
 // [Previous functions remain the same: loadKeywords, scanFiles, containsKeywords, updateFromRepository]
 
 func printHelp() {
-	fmt.Println("Usage: worldfind <directory>")
-	fmt.Println("Options:")
-	fmt.Println("1. Normal WebShell Detection where it's only detect webshells in files")
-	fmt.Println("   Output Example : File: C:/directory/file.php")
-	fmt.Println("  			Line number: 4")
-	fmt.Println("			Detection type: Keyword Match")
-	fmt.Println("			Matched keyword: gzinflate(base64_decode(")
-	fmt.Println("2. Remove String from Files where it's remove string from files")
+	fmt.Print("Usage: worldfind <directory>\n")
+	fmt.Print("Options:\n")
+	fmt.Print("1. Normal WebShell Detection where it's only detect webshells in files\n")
+	fmt.Print("   Output Example : File: C:/directory/file.php\n")
+	fmt.Print("  			Line number: 4\n")
+	fmt.Print("			Detection type: Keyword Match\n")
+	fmt.Print("			Matched keyword: gzinflate(base64_decode(")
 }
 
 func updateFromRepository(repoURL string) error {
@@ -500,7 +499,7 @@ func main() {
 	}
 
 	// Show menu if no specific command-line options
-	fmt.Println(menuText)
+	fmt.Print(menuText)
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Print("Enter your choice (1 or 2): ")
 	choice, _ := reader.ReadString('\n')

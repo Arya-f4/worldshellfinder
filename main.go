@@ -51,7 +51,7 @@ const banner = `
 \  /\  / (_) | |  | | (_| /\__/ / | | |  __/ | | | |   | | | | | (_| |  __/ |   
  \/  \/ \___/|_|  |_|\__,_\____/|_| |_|\___|_|_| \_|   |_|_| |_|\__,_|\___|_|  
  ` + Reset + `	
- made with love by ` + Yellow + ` Worldsavior/Arya-f4 ` + Magenta + `^^	 ` + Green + `	v.1.2.0.0 Stable Build  ` + Reset + `
+ made with love by ` + Yellow + ` Worldsavior/Arya-f4 ` + Magenta + `^^	 ` + Green + `	v.1.2.2.0 Stable Build  ` + Reset + `
 ===========================================================================================
 `
 
@@ -408,9 +408,69 @@ func scanFiles(directory string, keywords []string, regexes []*regexp.Regexp) {
 		fmt.Printf("\n%sNo potential webshells were found.%s\n", Green, Reset)
 	}
 }
+func writeDetectionsToFile(filepath string, detections []*ShellDetection, totalFilesScanned int) error {
+	file, err := os.Create(filepath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	writer := bufio.NewWriter(file)
+
+	// Write header
+	fmt.Fprintf(writer, "WebShell Detection Report\n")
+	fmt.Fprintf(writer, "Generated: %s\n", time.Now().Format("2006-01-02 15:04:05"))
+	fmt.Fprintf(writer, "Total files scanned: %d\n", totalFilesScanned)
+	fmt.Fprintf(writer, "Total potential webshells found: %d\n\n", len(detections))
+
+	// Write each detection
+	for i, detect := range detections {
+		fmt.Fprintf(writer, "Detection #%d:\n", i+1)
+		fmt.Fprintf(writer, "- File: %s\n", detect.path)
+		fmt.Fprintf(writer, "- Line number: %d\n", detect.lineNumber)
+		if detect.isRegexMatch {
+			fmt.Fprintf(writer, "- Detection type: Regex Pattern Match\n")
+		} else {
+			fmt.Fprintf(writer, "- Detection type: Keyword Match\n")
+			fmt.Fprintf(writer, "- Matched keyword: %s\n", detect.keyword)
+		}
+		fmt.Fprintf(writer, "- Matched line: %s\n\n", strings.TrimSpace(detect.matchedLine))
+	}
+
+	return writer.Flush()
+}
+
+func writeModificationsToFile(filepath string, modifications []*FileModification, totalFilesScanned int, totalStringsRemoved int) error {
+	file, err := os.Create(filepath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	writer := bufio.NewWriter(file)
+
+	// Write header
+	fmt.Fprintf(writer, "String Removal Report\n")
+	fmt.Fprintf(writer, "Generated: %s\n", time.Now().Format("2006-01-02 15:04:05"))
+	fmt.Fprintf(writer, "Total files scanned: %d\n", totalFilesScanned)
+	fmt.Fprintf(writer, "Total files modified: %d\n", len(modifications))
+	fmt.Fprintf(writer, "Total strings removed: %d\n\n", totalStringsRemoved)
+
+	// Write each modification
+	for i, mod := range modifications {
+		fmt.Fprintf(writer, "Modification #%d:\n", i+1)
+		fmt.Fprintf(writer, "- File: %s\n", mod.path)
+		fmt.Fprintf(writer, "- Strings removed: %d\n", mod.stringsRemoved)
+		fmt.Fprintf(writer, "- Original size: %d bytes\n", mod.originalSize)
+		fmt.Fprintf(writer, "- Modified size: %d bytes\n", mod.modifiedSize)
+		fmt.Fprintf(writer, "- Size difference: %d bytes\n\n", mod.originalSize-mod.modifiedSize)
+	}
+
+	return writer.Flush()
+}
+
 func main() {
 	// Define flags
-	stringToRemoveFlag := flag.String("stringtoremove", "", "string to remove from files")
 	helpFlag := flag.Bool("h", false, "display help information")
 	helpFlagLong := flag.Bool("help", false, "display help information")
 
@@ -439,25 +499,6 @@ func main() {
 		return
 	}
 
-	// If --stringtoremove is specified, skip menu and go directly to string removal
-	if *stringToRemoveFlag != "" {
-		if len(args) < 1 {
-			fmt.Println("Error: Directory not specified")
-			printHelp()
-			return
-		}
-		directory := args[0]
-		done := make(chan bool)
-		go loadingAnimation(done)
-		err := removeStringFromDirectory(directory, *stringToRemoveFlag)
-		done <- true
-		if err != nil {
-			log.Fatalf("Error removing string: %v\n", err)
-		}
-		fmt.Println("String removal completed!")
-		return
-	}
-
 	// Show menu if no specific command-line options
 	fmt.Println(menuText)
 	reader := bufio.NewReader(os.Stdin)
@@ -466,21 +507,19 @@ func main() {
 	choice = strings.TrimSpace(choice)
 
 	// Get directory path
-	if len(args) < 1 {
-		fmt.Println("Error: Directory not specified")
-		printHelp()
-		return
-	}
-	directory := args[0]
-	var wordlistPath string
-	if len(args) > 1 {
-		wordlistPath = args[1]
-	}
+	fmt.Print("Enter the directory to scan: ")
+	directory, _ := reader.ReadString('\n')
+	directory = strings.TrimSpace(directory)
+
+	// Get output file path
+	fmt.Print("Enter the output file path (press Enter for no file output): ")
+	outputFile, _ := reader.ReadString('\n')
+	outputFile = strings.TrimSpace(outputFile)
 
 	switch choice {
 	case "1":
 		// Normal WebShell Detection
-		keywords, err := loadKeywords(wordlistPath)
+		keywords, err := loadKeywords("")
 		if err != nil {
 			log.Fatalf("Fail to load Keyword: %v\n", err)
 		}
@@ -506,11 +545,75 @@ func main() {
 			regexes = append(regexes, rx)
 		}
 
+		var detections []*ShellDetection
+		var totalFilesScanned int
+
 		done := make(chan bool)
 		go loadingAnimation(done)
-		scanFiles(directory, keywords, regexes)
+
+		// Walk through directory and collect detections
+		err = filepath.Walk(directory, func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				log.Printf("Error accessing file or directory: %v\n", err)
+				return nil
+			}
+
+			if !info.IsDir() {
+				totalFilesScanned++
+
+				if verbose {
+					fmt.Printf("\rScanning: %s", path)
+				}
+
+				detection, err := containsKeywords(path, keywords, regexes)
+				if err != nil {
+					log.Printf("\nError reading file: %v\n", err)
+					return nil
+				}
+
+				if detection != nil {
+					detections = append(detections, detection)
+					shellCount++
+				}
+			}
+			return nil
+		})
+
 		done <- true
-		fmt.Printf("Number of potential webshells found: %d\n", shellCount)
+
+		// Print results to console
+		fmt.Printf("\n%sWebShell Detection Summary:%s\n", Yellow, Reset)
+		fmt.Printf("Total files scanned: %d\n", totalFilesScanned)
+		fmt.Printf("Total potential webshells found: %d\n", len(detections))
+
+		if len(detections) > 0 {
+			fmt.Printf("\n%sPotential WebShells Found:%s\n", Red, Reset)
+			for _, detect := range detections {
+				fmt.Printf("\n- File: %s\n", detect.path)
+				fmt.Printf("  Line number: %d\n", detect.lineNumber)
+				if detect.isRegexMatch {
+					fmt.Printf("  Detection type: %sRegex Pattern Match%s\n", Magenta, Reset)
+				} else {
+					fmt.Printf("  Detection type: %sKeyword Match%s\n", Blue, Reset)
+					fmt.Printf("  Matched keyword: %s\n", detect.keyword)
+				}
+				if verbose {
+					fmt.Printf("  Matched line: %s\n", strings.TrimSpace(detect.matchedLine))
+				}
+			}
+		} else {
+			fmt.Printf("\n%sNo potential webshells were found.%s\n", Green, Reset)
+		}
+
+		// Write to file if specified
+		if outputFile != "" {
+			err = writeDetectionsToFile(outputFile, detections, totalFilesScanned)
+			if err != nil {
+				log.Printf("Error writing to output file: %v\n", err)
+			} else {
+				fmt.Printf("\nResults have been saved to: %s\n", outputFile)
+			}
+		}
 
 	case "2":
 		fmt.Print("Enter string to remove (press Ctrl+D or Ctrl+Z when done): ")
@@ -554,14 +657,61 @@ func main() {
 		// Print size of string being removed
 		fmt.Printf("String size to remove: %.2f MB\n", float64(len(stringToRemove))/(1024*1024))
 
+		var modifications []*FileModification
+		var totalFilesScanned int
+		var totalStringsRemoved int
+
 		done := make(chan bool)
 		go loadingAnimation(done)
-		err := removeStringFromDirectory(directory, stringToRemove)
+
+		// Walk through directory
+		err := filepath.Walk(directory, func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				log.Printf("Error accessing file or directory: %v\n", err)
+				return nil
+			}
+
+			if !info.IsDir() {
+				totalFilesScanned++
+				modification, err := removeStringFromFile(path, stringToRemove)
+				if err != nil {
+					log.Printf("Error processing file %s: %v\n", path, err)
+					return nil
+				}
+
+				if modification != nil {
+					modifications = append(modifications, modification)
+					totalStringsRemoved += modification.stringsRemoved
+				}
+
+				if verbose {
+					fmt.Printf("Processed file: %s\n", path)
+				}
+			}
+			return nil
+		})
+
 		done <- true
+
 		if err != nil {
 			log.Fatalf("Error removing string: %v\n", err)
 		}
-		fmt.Println("String removal completed!")
+
+		// Print results to console
+		fmt.Printf("\n%sString Removal Summary:%s\n", Yellow, Reset)
+		fmt.Printf("Total files scanned: %d\n", totalFilesScanned)
+		fmt.Printf("Total files modified: %d\n", len(modifications))
+		fmt.Printf("Total strings removed: %d\n", totalStringsRemoved)
+
+		// Write to file if specified
+		if outputFile != "" {
+			err = writeModificationsToFile(outputFile, modifications, totalFilesScanned, totalStringsRemoved)
+			if err != nil {
+				log.Printf("Error writing to output file: %v\n", err)
+			} else {
+				fmt.Printf("\nResults have been saved to: %s\n", outputFile)
+			}
+		}
 
 	default:
 		fmt.Println("Invalid choice!")

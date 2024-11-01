@@ -410,7 +410,7 @@ func scanFiles(directory string, keywords []string, regexes []*regexp.Regexp) {
 }
 func main() {
 	// Define flags
-	stringToRemove := flag.String("stringtoremove", "", "string to remove from files")
+	stringToRemoveFlag := flag.String("stringtoremove", "", "string to remove from files")
 	helpFlag := flag.Bool("h", false, "display help information")
 	helpFlagLong := flag.Bool("help", false, "display help information")
 
@@ -440,7 +440,7 @@ func main() {
 	}
 
 	// If --stringtoremove is specified, skip menu and go directly to string removal
-	if *stringToRemove != "" {
+	if *stringToRemoveFlag != "" {
 		if len(args) < 1 {
 			fmt.Println("Error: Directory not specified")
 			printHelp()
@@ -449,7 +449,7 @@ func main() {
 		directory := args[0]
 		done := make(chan bool)
 		go loadingAnimation(done)
-		err := removeStringFromDirectory(directory, *stringToRemove)
+		err := removeStringFromDirectory(directory, *stringToRemoveFlag)
 		done <- true
 		if err != nil {
 			log.Fatalf("Error removing string: %v\n", err)
@@ -513,9 +513,46 @@ func main() {
 		fmt.Printf("Number of potential webshells found: %d\n", shellCount)
 
 	case "2":
-		fmt.Print("Enter string to remove: ")
-		stringToRemove, _ := reader.ReadString('\n')
-		stringToRemove = strings.TrimSpace(stringToRemove)
+		fmt.Print("Enter string to remove (press Ctrl+D or Ctrl+Z when done): ")
+
+		// Create a buffer with 10MB capacity
+		largeBuffer := make([]byte, 10*1024*1024) // 10MB buffer
+		var totalSize int64
+		maxSize := int64(10 * 1024 * 1024) // 10MB limit
+
+		// Create a buffer to store the complete input
+		var builder strings.Builder
+		builder.Grow(len(largeBuffer)) // Pre-allocate capacity
+
+		// Read input in chunks
+		for {
+			n, err := reader.Read(largeBuffer)
+			if err == io.EOF {
+				break
+			}
+			if err != nil {
+				log.Fatalf("Error reading input: %v\n", err)
+			}
+
+			// Check total size
+			totalSize += int64(n)
+			if totalSize > maxSize {
+				log.Fatalf("Input exceeds maximum size of 10MB\n")
+			}
+
+			// Write chunk to builder
+			builder.Write(largeBuffer[:n])
+		}
+
+		stringToRemove := strings.TrimSpace(builder.String())
+
+		if stringToRemove == "" {
+			fmt.Println("Error: Empty string provided")
+			return
+		}
+
+		// Print size of string being removed
+		fmt.Printf("String size to remove: %.2f MB\n", float64(len(stringToRemove))/(1024*1024))
 
 		done := make(chan bool)
 		go loadingAnimation(done)

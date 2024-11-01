@@ -5,7 +5,6 @@ import (
 	"embed"
 	"flag"
 	"fmt"
-
 	"io"
 	"log"
 	"net/http"
@@ -29,12 +28,17 @@ const (
 	White   = "\033[37m"
 )
 
-// Embed the default wordlist file
-//
+type FileModification struct {
+	path           string
+	originalSize   int64
+	modifiedSize   int64
+	stringsRemoved int
+}
+
 //go:embed wordlists/default.txt
 var defaultWordlist embed.FS
 var shellCount int
-var verbose bool // Global flag for verbose mode
+var verbose bool
 
 const banner = `
 ` + Red + `
@@ -47,130 +51,131 @@ const banner = `
 \  /\  / (_) | |  | | (_| /\__/ / | | |  __/ | | | |   | | | | | (_| |  __/ |   
  \/  \/ \___/|_|  |_|\__,_\____/|_| |_|\___|_|_| \_|   |_|_| |_|\__,_|\___|_|  
  ` + Reset + `	
- made with love by ` + Yellow + ` Worldsavior/Arya-f4 ` + Magenta + `^^	 ` + Green + `	v.1.1.1.6 Stable Build  ` + Reset + `
+ made with love by ` + Yellow + ` Worldsavior/Arya-f4 ` + Magenta + `^^	 ` + Green + `	v.1.2.0.0 Stable Build  ` + Reset + `
 ===========================================================================================
 `
 
-// Loading animation while scanning
+const menuText = `
+Please choose an option:
+1. Normal WebShell Detection
+2. Remove String from Files
+`
+
 func loadingAnimation(done chan bool) {
 	chars := []rune{'|', '/', '-', '\\'}
 	for {
 		select {
 		case <-done:
-			fmt.Print("\rScan complete!                          \n")
+			fmt.Print("\rOperation complete!                          \n")
 			return
 		default:
 			for _, c := range chars {
-				fmt.Printf("\rScanning files... %c", c)
+				fmt.Printf("\rProcessing... %c", c)
 				time.Sleep(100 * time.Millisecond)
 			}
 		}
 	}
 }
-func loadKeywords(wordlistPath string) ([]string, error) {
-	var keywords []string
 
-	// Load default embedded wordlist first
-	file, err := defaultWordlist.Open("wordlists/default.txt")
+func removeStringFromFile(filePath string, stringToRemove string) (*FileModification, error) {
+	// Read the file
+	content, err := os.ReadFile(filePath)
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
 
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		keyword := strings.TrimSpace(scanner.Text())
-		if keyword != "" {
-			keywords = append(keywords, keyword)
-		}
+	originalSize := int64(len(content))
+	originalContent := string(content)
+
+	// Count how many instances were removed
+	stringsRemoved := strings.Count(originalContent, stringToRemove)
+
+	// Only proceed if we found matches
+	if stringsRemoved == 0 {
+		return nil, nil
 	}
 
-	if err := scanner.Err(); err != nil {
+	// Convert to string and remove the specified string
+	newContent := strings.ReplaceAll(originalContent, stringToRemove, "")
+
+	// Write back to the file
+	err = os.WriteFile(filePath, []byte(newContent), 0644)
+	if err != nil {
 		return nil, err
 	}
 
-	// If an external wordlist is provided, append its keywords to the default list
-	if wordlistPath != "" {
-		file, err := os.Open(wordlistPath)
-		if err != nil {
-			return nil, err
-		}
-		defer file.Close()
-
-		scanner := bufio.NewScanner(file)
-		for scanner.Scan() {
-			keyword := strings.TrimSpace(scanner.Text())
-			if keyword != "" {
-				keywords = append(keywords, keyword)
-			}
-		}
-
-		if err := scanner.Err(); err != nil {
-			return nil, err
-		}
-	}
-
-	return keywords, nil
+	// Return modification info
+	return &FileModification{
+		path:           filePath,
+		originalSize:   originalSize,
+		modifiedSize:   int64(len(newContent)),
+		stringsRemoved: stringsRemoved,
+	}, nil
 }
+func removeStringFromDirectory(directory string, stringToRemove string) error {
+	var modifications []*FileModification
+	var totalFilesScanned int
+	var totalFilesModified int
+	var totalStringsRemoved int
 
-func scanFiles(directory string, keywords []string, regexes []*regexp.Regexp) {
 	err := filepath.Walk(directory, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			// Skip any directories or files that cause an error (e.g., symbolic links)
 			log.Printf("Error accessing file or directory: %v\n", err)
-			return nil // Continue scanning the next file
+			return nil
 		}
 
 		if !info.IsDir() {
-			match, keyword, err := containsKeywords(path, keywords, regexes)
+			totalFilesScanned++
+			modification, err := removeStringFromFile(path, stringToRemove)
 			if err != nil {
-				log.Printf("Error reading file: %v\n", err)
-				return nil // Continue scanning even if one file fails
+				log.Printf("Error processing file %s: %v\n", path, err)
+				return nil
 			}
-			if match {
-				fmt.Printf("\nPotential webshell found in: %s\n", path)
-				if verbose && keyword != "" {
-					fmt.Printf("Keyword detected: %s\n", keyword)
-				}
-				shellCount++
+
+			if modification != nil {
+				modifications = append(modifications, modification)
+				totalFilesModified++
+				totalStringsRemoved += modification.stringsRemoved
+			}
+
+			if verbose {
+				fmt.Printf("Processed file: %s\n", path)
 			}
 		}
 		return nil
 	})
-	if err != nil {
-		log.Fatalf("Error scanning files: %v\n", err)
+
+	// Print summary after processing
+	fmt.Printf("\n%sString Removal Summary:%s\n", Yellow, Reset)
+	fmt.Printf("Total files scanned: %d\n", totalFilesScanned)
+	fmt.Printf("Total files modified: %d\n", totalFilesModified)
+	fmt.Printf("Total strings removed: %d\n", totalStringsRemoved)
+
+	if len(modifications) > 0 {
+		fmt.Printf("\n%sModified Files:%s\n", Green, Reset)
+		for _, mod := range modifications {
+			fmt.Printf("- %s\n", mod.path)
+			fmt.Printf("  Strings removed: %d\n", mod.stringsRemoved)
+			fmt.Printf("  Size change: %d bytes -> %d bytes\n", mod.originalSize, mod.modifiedSize)
+		}
+	} else {
+		fmt.Printf("\n%sNo files were modified.%s\n", Blue, Reset)
 	}
+
+	return err
 }
 
-func containsKeywords(filename string, keywords []string, regexes []*regexp.Regexp) (bool, string, error) {
-	file, err := os.Open(filename)
-	if err != nil {
-		return false, "", err
-	}
-	defer file.Close()
+// [Previous functions remain the same: loadKeywords, scanFiles, containsKeywords, updateFromRepository]
 
-	scanner := bufio.NewScanner(file)
-	buf := make([]byte, 1024*1024)    // 1MB buffer
-	scanner.Buffer(buf, 20*1024*1024) // Set max token size to 20MB
-
-	for scanner.Scan() {
-		line := scanner.Text()
-		for _, keyword := range keywords {
-			if strings.Contains(line, keyword) {
-				return true, keyword, nil
-			}
-		}
-		for _, rx := range regexes {
-			if rx.MatchString(line) {
-				return true, "regex_match", nil
-			}
-		}
-	}
-
-	if err := scanner.Err(); err != nil {
-		return false, "", err
-	}
-	return false, "", nil
+func printHelp() {
+	fmt.Println("Usage: worldfind <directory>")
+	fmt.Println("Options:")
+	fmt.Println("1. Normal WebShell Detection where it's only detect webshells in files")
+	fmt.Println("   Output Example : File: C:/directory/file.php")
+	fmt.Println("  			Line number: 4")
+	fmt.Println("			Detection type: Keyword Match")
+	fmt.Println("			Matched keyword: gzinflate(base64_decode(")
+	fmt.Println("2. Remove String from Files where it's remove string from files")
 }
 
 func updateFromRepository(repoURL string) error {
@@ -234,106 +239,295 @@ func updateFromRepository(repoURL string) error {
 
 	return nil
 }
-func printHelp() {
+func loadKeywords(wordlistPath string) ([]string, error) {
+	var keywords []string
 
-	fmt.Println("Usage: worldfind [option] <directory> [wordlist]")
-	fmt.Println("Option:")
-	fmt.Println("  --update     Update latest version from repository.")
-	fmt.Println("  -v           Enable verbose mode.")
-	fmt.Println("  -h, --help   Display this help.")
+	// Load default embedded wordlist first
+	file, err := defaultWordlist.Open("wordlists/default.txt")
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		keyword := strings.TrimSpace(scanner.Text())
+		if keyword != "" {
+			keywords = append(keywords, keyword)
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+
+	// If an external wordlist is provided, append its keywords to the default list
+	if wordlistPath != "" {
+		file, err := os.Open(wordlistPath)
+		if err != nil {
+			return nil, err
+		}
+		defer file.Close()
+
+		scanner := bufio.NewScanner(file)
+		for scanner.Scan() {
+			keyword := strings.TrimSpace(scanner.Text())
+			if keyword != "" {
+				keywords = append(keywords, keyword)
+			}
+		}
+
+		if err := scanner.Err(); err != nil {
+			return nil, err
+		}
+	}
+
+	return keywords, nil
 }
 
+type ShellDetection struct {
+	path         string
+	keyword      string
+	lineNumber   int
+	isRegexMatch bool
+	matchedLine  string
+}
+
+func containsKeywords(filename string, keywords []string, regexes []*regexp.Regexp) (*ShellDetection, error) {
+	file, err := os.Open(filename)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	buf := make([]byte, 1024*1024)    // 1MB buffer
+	scanner.Buffer(buf, 20*1024*1024) // Set max token size to 20MB
+
+	lineNumber := 0
+	for scanner.Scan() {
+		lineNumber++
+		line := scanner.Text()
+
+		// Check keywords
+		for _, keyword := range keywords {
+			if strings.Contains(line, keyword) {
+				return &ShellDetection{
+					path:         filename,
+					keyword:      keyword,
+					lineNumber:   lineNumber,
+					isRegexMatch: false,
+					matchedLine:  line,
+				}, nil
+			}
+		}
+
+		// Check regex patterns
+		for _, rx := range regexes {
+			if rx.MatchString(line) {
+				return &ShellDetection{
+					path:         filename,
+					keyword:      "regex_pattern",
+					lineNumber:   lineNumber,
+					isRegexMatch: true,
+					matchedLine:  line,
+				}, nil
+			}
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+	return nil, nil
+}
+
+func scanFiles(directory string, keywords []string, regexes []*regexp.Regexp) {
+	var detections []*ShellDetection
+	var totalFilesScanned int
+
+	err := filepath.Walk(directory, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			log.Printf("Error accessing file or directory: %v\n", err)
+			return nil
+		}
+
+		if !info.IsDir() {
+			totalFilesScanned++
+
+			if verbose {
+				fmt.Printf("\rScanning: %s", path)
+			}
+
+			detection, err := containsKeywords(path, keywords, regexes)
+			if err != nil {
+				log.Printf("\nError reading file: %v\n", err)
+				return nil
+			}
+
+			if detection != nil {
+				detections = append(detections, detection)
+				shellCount++
+			}
+		}
+		return nil
+	})
+
+	if err != nil {
+		log.Fatalf("\nError scanning files: %v\n", err)
+	}
+
+	// Clear the scanning line if in verbose mode
+	if verbose {
+		fmt.Print("\r")
+	}
+
+	// Print summary
+	fmt.Printf("\n%sWebShell Detection Summary:%s\n", Yellow, Reset)
+	fmt.Printf("Total files scanned: %d\n", totalFilesScanned)
+	fmt.Printf("Total potential webshells found: %d\n", shellCount)
+
+	if len(detections) > 0 {
+		fmt.Printf("\n%sPotential WebShells Found:%s\n", Red, Reset)
+		for _, detect := range detections {
+			fmt.Printf("\n- File: %s\n", detect.path)
+			fmt.Printf("  Line number: %d\n", detect.lineNumber)
+			if detect.isRegexMatch {
+				fmt.Printf("  Detection type: %sRegex Pattern Match%s\n", Magenta, Reset)
+			} else {
+				fmt.Printf("  Detection type: %sKeyword Match%s\n", Blue, Reset)
+				fmt.Printf("  Matched keyword: %s\n", detect.keyword)
+			}
+
+			if verbose {
+				// Show the matched line with some context
+				fmt.Printf("  Matched line: %s\n", strings.TrimSpace(detect.matchedLine))
+			}
+		}
+	} else {
+		fmt.Printf("\n%sNo potential webshells were found.%s\n", Green, Reset)
+	}
+}
 func main() {
 	// Define flags
-	fmt.Print(banner)
-	flagVerbose := flag.Bool("v", false, "enable verbose mode")
+	stringToRemove := flag.String("stringtoremove", "", "string to remove from files")
+	helpFlag := flag.Bool("h", false, "display help information")
+	helpFlagLong := flag.Bool("help", false, "display help information")
+
+	// Parse flags
 	flag.Parse()
 
-	// Set verbose flag
-	verbose = *flagVerbose
+	// Print banner first
+	fmt.Print(banner)
 
-	// Get non-flag arguments
-	args := flag.Args()
-	if len(args) < 1 {
+	// Check for help flags
+	if *helpFlag || *helpFlagLong {
 		printHelp()
 		return
 	}
 
-	// Handle options
-	for _, arg := range args {
-		switch arg {
-		case "--update":
-			repoURL := "github.com/Arya-f4/worldshellfinder" // Change with your repository URL!
-			err := updateFromRepository(repoURL)
-			if err != nil {
-				log.Fatalf("Error While Updating: %v\n", err)
-			}
-			fmt.Println("Update done.")
-			return
-		case "-h", "--help":
+	args := flag.Args()
+
+	// Handle update command
+	if len(args) > 0 && args[0] == "--update" {
+		repoURL := "github.com/Arya-f4/worldshellfinder"
+		err := updateFromRepository(repoURL)
+		if err != nil {
+			log.Fatalf("Error While Updating: %v\n", err)
+		}
+		fmt.Println("Update done.")
+		return
+	}
+
+	// If --stringtoremove is specified, skip menu and go directly to string removal
+	if *stringToRemove != "" {
+		if len(args) < 1 {
+			fmt.Println("Error: Directory not specified")
 			printHelp()
 			return
-		default:
-			// Proceed with directory scanning
 		}
+		directory := args[0]
+		done := make(chan bool)
+		go loadingAnimation(done)
+		err := removeStringFromDirectory(directory, *stringToRemove)
+		done <- true
+		if err != nil {
+			log.Fatalf("Error removing string: %v\n", err)
+		}
+		fmt.Println("String removal completed!")
+		return
 	}
 
-	// Get directory and wordlist path from arguments
-	var directory string
+	// Show menu if no specific command-line options
+	fmt.Println(menuText)
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Print("Enter your choice (1 or 2): ")
+	choice, _ := reader.ReadString('\n')
+	choice = strings.TrimSpace(choice)
+
+	// Get directory path
+	if len(args) < 1 {
+		fmt.Println("Error: Directory not specified")
+		printHelp()
+		return
+	}
+	directory := args[0]
 	var wordlistPath string
-
-	if len(args) > 0 {
-		directory = args[0]
-	}
 	if len(args) > 1 {
 		wordlistPath = args[1]
 	}
 
-	// If directory is not provided, show help
-	if directory == "" {
-		printHelp()
+	switch choice {
+	case "1":
+		// Normal WebShell Detection
+		keywords, err := loadKeywords(wordlistPath)
+		if err != nil {
+			log.Fatalf("Fail to load Keyword: %v\n", err)
+		}
+
+		regexPatterns := []string{
+			`(?i)(eval|assert|system|shell_exec|passthru)\s*\(\s*["']?[a-zA-Z0-9+/=]{20,}["']?\s*\)`,
+			`(?i)(exec|system|popen|proc_open)\s*\(\s*\$_(?:GET|POST|REQUEST|COOKIE|SERVER)\[([^\]]+)\]\s*\)`,
+			`(?i)move_uploaded_file\s*\(.*?,\s*['"]\.\./(.*?)\.php['"]\s*\)`,
+			`(?i)(passthru|shell_exec|system|exec)\s*\(\s*\$_(?:GET|POST|REQUEST|COOKIE|SERVER)\[.*?\]\s*\)`,
+			`eval\(\s*\$\w+\s*\(\s*\$\w+\s*\(\s*\$\w+\s*\(\s*\$\w+\s*\(\s*\$\w+\s*\)\s*\)\s*\)\s*\)\s*\)\s*;`,
+			`(?i)is_dir\s*\(\s*\$\w+\s*\)\s*\?\s*rmdir\s*\(\s*\$\w+\s*\)\s*:\s*unlink\s*\(\s*\$\w+\s*\)\s*;`,
+			`(?i)if\s*\(\s*is_dir\s*\(\s*\$\w+\s*\)\s*&&\s*is_readable\s*\(\s*\$\w+\s*\)\s*&&\s*!\s*is_link\s*\(\s*\$\w+\s*\)\s*\)\s*{`,
+			`(?i)__halt_compiler\s*\(\s*\)\s*`,
+			`(?:isset\s*\(\s*\$_SERVER\s*\[\s*['"]H(?:['"]\s*\.\s*['"])?T(?:['"]\s*\.\s*['"])?T(?:['"]\s*\.\s*['"])?P(?:['"]\s*\.\s*['"])?S['"]\]\s*\)|\$_SERVER\s*\[\s*['"]H(?:['"]\s*\.\s*['"])?T(?:['"]\s*\.\s*['"])?T(?:['"]\s*\.\s*['"])?P(?:['"]\s*\.\s*['"])?S['"]\]\s*===\s*(?:['"]o(?:['"]\s*\.\s*['"])?n['"]|['"]on['"]))\s*(?:\?\s*['"]ht(?:['"]\s*\.\s*['"])?tp(?:['"]\s*\.\s*['"])?s['"]\s*:\s*['"]ht(?:['"]\s*\.\s*['"])?tp['"]|\)\s*\.\s*['"]://['"]\s*\.\s*\$_SERVER\s*\[\s*['"]HT(?:['"]\s*\.\s*['"])?T(?:['"]\s*\.\s*['"])?P(?:['"]\s*\.\s*['"])?_H(?:['"]\s*\.\s*['"])?OS(?:['"]\s*\.\s*['"])?T['"])`,
+		}
+
+		var regexes []*regexp.Regexp
+		for _, pattern := range regexPatterns {
+			rx, err := regexp.Compile(pattern)
+			if err != nil {
+				log.Fatalf("Failed to compile regex: %v\n", err)
+			}
+			regexes = append(regexes, rx)
+		}
+
+		done := make(chan bool)
+		go loadingAnimation(done)
+		scanFiles(directory, keywords, regexes)
+		done <- true
+		fmt.Printf("Number of potential webshells found: %d\n", shellCount)
+
+	case "2":
+		fmt.Print("Enter string to remove: ")
+		stringToRemove, _ := reader.ReadString('\n')
+		stringToRemove = strings.TrimSpace(stringToRemove)
+
+		done := make(chan bool)
+		go loadingAnimation(done)
+		err := removeStringFromDirectory(directory, stringToRemove)
+		done <- true
+		if err != nil {
+			log.Fatalf("Error removing string: %v\n", err)
+		}
+		fmt.Println("String removal completed!")
+
+	default:
+		fmt.Println("Invalid choice!")
 		return
 	}
-
-	// Load keywords
-	keywords, err := loadKeywords(wordlistPath)
-	if err != nil {
-		log.Fatalf("Fail to load Keyword: %v\n", err)
-	}
-
-	// Refined regex patterns for more specific webshell detection
-	regexPatterns := []string{
-		`(?i)(eval|assert|system|shell_exec|passthru)\s*\(\s*["']?[a-zA-Z0-9+/=]{20,}["']?\s*\)`,                                    // Obfuscated eval with base64-like strings
-		`(?i)(exec|system|popen|proc_open)\s*\(\s*\$_(?:GET|POST|REQUEST|COOKIE|SERVER)\[([^\]]+)\]\s*\)`,                           // Remote command execution via superglobals
-		`(?i)move_uploaded_file\s*\(.*?,\s*['"]\.\./(.*?)\.php['"]\s*\)`,                                                            // File upload and renaming to PHP
-		`(?i)(passthru|shell_exec|system|exec)\s*\(\s*\$_(?:GET|POST|REQUEST|COOKIE|SERVER)\[.*?\]\s*\)`,                            // Command execution via superglobals
-		`eval\(\s*\$\w+\s*\(\s*\$\w+\s*\(\s*\$\w+\s*\(\s*\$\w+\s*\(\s*\$\w+\s*\)\s*\)\s*\)\s*\)\s*\)\s*;`,                           // Nested eval
-		`(?i)is_dir\s*\(\s*\$\w+\s*\)\s*\?\s*rmdir\s*\(\s*\$\w+\s*\)\s*:\s*unlink\s*\(\s*\$\w+\s*\)\s*;`,                            // is_dir and delete logic
-		`(?i)if\s*\(\s*is_dir\s*\(\s*\$\w+\s*\)\s*&&\s*is_readable\s*\(\s*\$\w+\s*\)\s*&&\s*!\s*is_link\s*\(\s*\$\w+\s*\)\s*\)\s*{`, // Directory and readability check
-		`(?i)__halt_compiler\s*\(\s*\)\s*`, // __halt_compiler usage, which can be used to hide webshell code (it represent the end of the file where it's continued by raw data that is not interpreted by PHP)
-		`(?:isset\s*\(\s*\$_SERVER\s*\[\s*['"]H(?:['"]\s*\.\s*['"])?T(?:['"]\s*\.\s*['"])?T(?:['"]\s*\.\s*['"])?P(?:['"]\s*\.\s*['"])?S['"]\]\s*\)|\$_SERVER\s*\[\s*['"]H(?:['"]\s*\.\s*['"])?T(?:['"]\s*\.\s*['"])?T(?:['"]\s*\.\s*['"])?P(?:['"]\s*\.\s*['"])?S['"]\]\s*===\s*(?:['"]o(?:['"]\s*\.\s*['"])?n['"]|['"]on['"]))\s*(?:\?\s*['"]ht(?:['"]\s*\.\s*['"])?tp(?:['"]\s*\.\s*['"])?s['"]\s*:\s*['"]ht(?:['"]\s*\.\s*['"])?tp['"]|\)\s*\.\s*['"]://['"]\s*\.\s*\$_SERVER\s*\[\s*['"]HT(?:['"]\s*\.\s*['"])?T(?:['"]\s*\.\s*['"])?P(?:['"]\s*\.\s*['"])?_H(?:['"]\s*\.\s*['"])?OS(?:['"]\s*\.\s*['"])?T['"])`,
-	}
-
-	// Compile regexes
-	var regexes []*regexp.Regexp
-	for _, pattern := range regexPatterns {
-		rx, err := regexp.Compile(pattern)
-		if err != nil {
-			log.Fatalf("Failed to compile regex: %v\n", err)
-		}
-		regexes = append(regexes, rx)
-	}
-
-	// Start scanning with loading animation
-	done := make(chan bool)
-	go loadingAnimation(done)
-
-	scanFiles(directory, keywords, regexes)
-
-	// Stop loading animation after scanning
-
-	done <- true
-	// Print summary
-	fmt.Printf("Number of potential webshells found: %d\n", shellCount)
-
 }

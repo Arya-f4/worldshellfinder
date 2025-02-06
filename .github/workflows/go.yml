@@ -4,12 +4,11 @@ on:
   push:
     branches:
       - main
+    tags:
+      - 'v*'  # Runs when a new tag (e.g., v1.0.0) is pushed
   pull_request:
     branches:
       - main
-  push:
-    tags:
-      - 'v*'  # Runs when a new tag (e.g., v1.0.0) is pushed
 
 jobs:
   build:
@@ -29,6 +28,22 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: '1.21'  # Change to your required Go version
+          cache-dependency-path: go.sum  # Ensure go.sum is used for caching
+
+      - name: Cache Go Modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: ${{ runner.os }}-go-${{ hashFiles('go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Install Dependencies
+        run: |
+          go mod tidy
+          go mod download
 
       - name: Build Binary
         run: |

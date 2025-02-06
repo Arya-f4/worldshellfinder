@@ -1,14 +1,14 @@
-name: Build and Release
+name: Build and Release Go Project
 
 on:
   push:
     branches:
-      - main
+      - main  # Change to "master" if your default branch is master
     tags:
       - 'v*'  # Runs when a new tag (e.g., v1.0.0) is pushed
   pull_request:
     branches:
-      - main
+      - main  # Change to "master" if needed
 
 jobs:
   build:
@@ -25,10 +25,10 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v4
         with:
-          go-version: '1.21'  # Change to your required Go version
-          cache-dependency-path: go.sum  # Ensure go.sum is used for caching
+          go-version: '1.20'
+          cache-dependency-path: go.sum  # Ensure caching uses go.sum
 
       - name: Cache Go Modules
         uses: actions/cache@v3
@@ -52,12 +52,15 @@ jobs:
           [ "${{ matrix.os }}" == "windows" ] && BIN_NAME+=".exe"
           GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} CGO_ENABLED=0 go build -o build/$BIN_NAME main.go
 
+      - name: Run Tests
+        run: go test -v ./...
+
       - name: Upload Artifact to GitHub Actions
         uses: actions/upload-artifact@v4
         with:
           name: myprogram-${{ matrix.os }}-${{ matrix.arch }}
           path: build/*
-          
+
   release:
     name: Publish Release
     needs: build

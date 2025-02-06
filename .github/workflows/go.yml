@@ -3,12 +3,12 @@ name: Build and Release Go Project
 on:
   push:
     branches:
-      - main  # Change to "master" if your default branch is master
+      - master  # Change to "master" if your default branch is master
     tags:
       - 'v*'  # Runs when a new tag (e.g., v1.0.0) is pushed
   pull_request:
     branches:
-      - main  # Change to "master" if needed
+      - master  # Change to "master" if needed
 
 jobs:
   build:

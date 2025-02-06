@@ -1,0 +1,39 @@
+name: Build and Upload Artifacts
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Compile Go Binaries
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        os: [linux, windows, darwin]  # Linux, Windows, macOS
+        arch: [amd64]                 # x86_64 architecture
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'  # Change this to your required Go version
+
+      - name: Build Binary
+        run: |
+          mkdir -p build
+          GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} CGO_ENABLED=0 go build -o build/myprogram-${{ matrix.os }}-${{ matrix.arch }} main.go
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: myprogram-${{ matrix.os }}-${{ matrix.arch }}
+          path: build/myprogram-${{ matrix.os }}-${{ matrix.arch }}
